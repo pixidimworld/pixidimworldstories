@@ -53,32 +53,31 @@
     transform:translateY(-50%) translateX(0);
   }
   body.mobile .detail{
-    display:block;left:0;right:0;top:50%;bottom:0;
-    width:100%;max-height:none;transform:translateY(28px);overflow-x:hidden;overflow-y:auto;overscroll-behavior:contain;
+    display:flex;flex-direction:column;justify-content:flex-end;
+    left:0;right:0;top:auto;bottom:0;
+    width:100%;max-height:100vh;
+    transform:translateY(100%);
+    overflow:hidden; /* Locked-in scroll */
   }
   body.mobile .detail.on{transform:translateY(0)}
   body.mobile .paper-layer{display:none}
   body.mobile .paper-sheet{
-    min-height:100%;padding:18px 20px calc(16px + env(safe-area-inset-bottom));
-    border-left:0;border-right:0;border-bottom:0;border-radius:12px 12px 0 0;box-shadow:none;
+    background:#ffffff; /* completely white */
+    min-height:auto;
+    padding:24px 20px calc(24px + env(safe-area-inset-bottom));
+    border:none;border-radius:0; /* square box */
+    box-shadow:0 -4px 24px rgba(0,0,0,0.12);
   }
-  body.mobile .paper-top-meta{margin-bottom:7px;font-size:10px}
-  body.mobile .paper-title{font-size:clamp(20px,6.4vw,28px);margin-bottom:3px}
-  body.mobile .paper-subtitle{font-size:12.5px;margin-bottom:7px}
-  body.mobile .paper-category-tag{font-size:10px;margin-bottom:9px}
-  body.mobile .paper-divider{margin-bottom:10px}
-  body.mobile .paper-desc{font-size:13.5px;line-height:1.45;margin-bottom:12px}
-  body.mobile .paper-meta-row{gap:6px;margin-bottom:12px}
-  body.mobile .paper-meta-col{gap:5px;padding-right:4px}
-  body.mobile .paper-meta-icon{width:18px;height:18px;flex-basis:18px}
-  body.mobile .paper-meta-text strong{font-size:11px}
-  body.mobile .paper-meta-text span{font-size:9px;margin-top:1px}
-  body.mobile .paper-actions{gap:8px;margin-bottom:10px}
-  body.mobile .btn-read,body.mobile .btn-close{padding:10px 16px;font-size:11px}
+  body.mobile .paper-top-meta{margin-bottom:8px;font-size:10px}
+  body.mobile .paper-title{font-size:clamp(22px,7vw,32px);margin-bottom:4px}
+  body.mobile .paper-subtitle{font-size:12px;margin-bottom:12px}
+  body.mobile .paper-category-tag{font-size:10px;margin-bottom:16px}
+  body.mobile .paper-divider{display:none;}
+  body.mobile .paper-desc{display:none;} /* The write-ups are too much, keep it simple */
+  body.mobile .paper-meta-row{display:none;}
+  body.mobile .paper-actions{margin-bottom:0;gap:12px}
+  body.mobile .btn-read,body.mobile .btn-close{padding:12px 20px;font-size:12px}
   body.mobile .paper-footer-row{display:none}
-  body.mobile .paper-quote{font-size:12px;line-height:1.35}
-  body.mobile .paper-quote-author{font-size:9px}
-  body.mobile .paper-watermark{width:30px;height:30px;flex-basis:30px}
 
   /* stacked paper sheets behind */
   .paper-layer{
@@ -457,7 +456,7 @@
   .loader-count small{margin:0 0 .08em .16em;font:700 clamp(18px,2.2vw,34px)/1 "Cinzel","EB Garamond",Georgia,serif;
     letter-spacing:0;color:#000}
   @media(max-width:767px){
-    .loader-count{bottom:calc(28px + env(safe-area-inset-bottom));font-size:clamp(64px,20vw,92px)}
+    .loader-count{bottom:calc(36px + env(safe-area-inset-bottom));font-size:clamp(54px,16vw,82px);line-height:1}
   }
   .loader-progress{position:absolute;left:0;right:0;bottom:0;height:3px;background:rgba(0,0,0,.10)}
   .loader-progress i{display:block;width:100%;height:100%;transform-origin:left;transform:scaleX(.01);
@@ -656,7 +655,7 @@ const DESKTOP_CAMERA_CONFIG={
 const MOBILE_CAMERA_CONFIG={
   position:{x:0,y:-0.0619,z:23.2455},
   target:{x:0,y:0.72,z:0},
-  fov:17,
+  fov:20,
   startPosition:0,
   minPanX:-5.2,
   maxPanX:5.2
