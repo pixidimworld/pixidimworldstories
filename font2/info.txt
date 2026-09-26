@@ -1,0 +1,2 @@
+﻿license: Demo
+link: https://www.fontspace.com/gubera-mono-font-f164888

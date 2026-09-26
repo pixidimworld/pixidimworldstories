@@ -1,0 +1,13 @@
+node_modules/
+dist/
+.recovery-backups/
+scratch/
+
+*.tsbuildinfo
+*.log
+
+# Local diagnostics and duplicate root assets; deployable assets live in public/.
+/*.mjs
+/*.png
+/*.glb
+/page2 background.jpg
