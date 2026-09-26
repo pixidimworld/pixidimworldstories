@@ -654,8 +654,8 @@ const DESKTOP_CAMERA_CONFIG={
 /* Mobile-only framing and horizontal exploration controls (max-width: 767px). */
 const MOBILE_CAMERA_CONFIG={
   position:{x:0,y:-0.0619,z:23.2455},
-  target:{x:0,y:0.72,z:0},
-  fov:20,
+  target:{x:0,y:1.11,z:0},
+  fov:19,
   startPosition:0,
   minPanX:-5.2,
   maxPanX:5.2
@@ -1886,7 +1886,15 @@ function applyCamera(){
     CAM_FORWARD.copy(CAM_OFFSET).multiplyScalar(-1).normalize();
     CAM_RIGHT.crossVectors(CAM_FORWARD,CAM_UP).normalize();
     CAM_OFFSET.applyAxisAngle(CAM_RIGHT,el);
-    camera.fov=MOBILE_CAMERA_CONFIG.fov;
+
+    let fov = MOBILE_CAMERA_CONFIG.fov;
+    const baseAspect = 0.5625;
+    const currentAspect = VW / VH;
+    if (currentAspect < baseAspect) {
+      const hTan = baseAspect * Math.tan(fov * Math.PI / 360);
+      fov = Math.atan(hTan / currentAspect) * 360 / Math.PI;
+    }
+    camera.fov = fov;
     camera.position.copy(CAM_TARGET).add(CAM_OFFSET);
     TGT.copy(CAM_TARGET);
     camera.lookAt(CAM_TARGET);
