@@ -1,6 +1,6 @@
 <!doctype html>
 <meta charset="utf-8">
-<title>PIXIDIMWORLD Stories</title>
+<title>PIXIDIMWORLD STORIES</title>
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -14,7 +14,7 @@
     --ticker-bottom-offset:0px;
   }
   *{box-sizing:border-box}
-  html,body{height:100%}
+  html,body{height:100%;height:100svh}
   body{
     margin:0;background:var(--bg);color:var(--ink);
     font-family:Inter,-apple-system,"Helvetica Neue",Helvetica,Arial,sans-serif;
@@ -62,22 +62,22 @@
     min-height:100%;padding:18px 20px calc(16px + env(safe-area-inset-bottom));
     border-left:0;border-right:0;border-bottom:0;border-radius:12px 12px 0 0;box-shadow:none;
   }
-  body.mobile .paper-top-meta{margin-bottom:7px;font-size:8px}
+  body.mobile .paper-top-meta{margin-bottom:7px;font-size:10px}
   body.mobile .paper-title{font-size:clamp(20px,6.4vw,28px);margin-bottom:3px}
-  body.mobile .paper-subtitle{font-size:10px;margin-bottom:7px}
-  body.mobile .paper-category-tag{font-size:7.5px;margin-bottom:9px}
+  body.mobile .paper-subtitle{font-size:12.5px;margin-bottom:7px}
+  body.mobile .paper-category-tag{font-size:10px;margin-bottom:9px}
   body.mobile .paper-divider{margin-bottom:10px}
-  body.mobile .paper-desc{font-size:10.5px;line-height:1.45;margin-bottom:12px}
+  body.mobile .paper-desc{font-size:13.5px;line-height:1.45;margin-bottom:12px}
   body.mobile .paper-meta-row{gap:6px;margin-bottom:12px}
   body.mobile .paper-meta-col{gap:5px;padding-right:4px}
-  body.mobile .paper-meta-icon{width:16px;height:16px;flex-basis:16px}
-  body.mobile .paper-meta-text strong{font-size:8px}
-  body.mobile .paper-meta-text span{font-size:6.5px;margin-top:1px}
+  body.mobile .paper-meta-icon{width:18px;height:18px;flex-basis:18px}
+  body.mobile .paper-meta-text strong{font-size:11px}
+  body.mobile .paper-meta-text span{font-size:9px;margin-top:1px}
   body.mobile .paper-actions{gap:8px;margin-bottom:10px}
-  body.mobile .btn-read,body.mobile .btn-close{padding:9px 15px;font-size:9px}
+  body.mobile .btn-read,body.mobile .btn-close{padding:10px 16px;font-size:11px}
   body.mobile .paper-footer-row{display:none}
-  body.mobile .paper-quote{font-size:9px;line-height:1.35}
-  body.mobile .paper-quote-author{font-size:6.5px}
+  body.mobile .paper-quote{font-size:12px;line-height:1.35}
+  body.mobile .paper-quote-author{font-size:9px}
   body.mobile .paper-watermark{width:30px;height:30px;flex-basis:30px}
 
   /* stacked paper sheets behind */
@@ -307,6 +307,67 @@
     font:500 13.5px/1 Inter,sans-serif;box-shadow:0 2px 14px rgba(50,35,20,.2);
     pointer-events:none;opacity:0;transition:opacity .5s}
   .hint.on{opacity:1}
+  
+  /* ---------- help UI ---------- */
+  .help-toggle {
+    position: fixed;
+    top: max(16px, env(safe-area-inset-top));
+    right: max(24px, env(safe-area-inset-right));
+    z-index: 20;
+    width: 32px;
+    height: 32px;
+    border: 1px solid rgba(0,0,0,0.25);
+    background: rgba(255,255,255,0.4);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #000;
+    font: 600 16px/1 "Cinzel","EB Garamond",Georgia,serif;
+    cursor: pointer;
+    transition: all 0.2s var(--ease);
+  }
+  .help-toggle:hover {
+    background: rgba(255,255,255,0.8);
+    border-color: rgba(0,0,0,0.5);
+  }
+  .help-card {
+    position: fixed;
+    top: calc(max(16px, env(safe-area-inset-top)) + 42px);
+    right: max(24px, env(safe-area-inset-right));
+    z-index: 20;
+    width: 280px;
+    background: #fdfaf4;
+    color: #2e261e;
+    padding: 22px 26px;
+    border-radius: 2px;
+    box-shadow: 0 12px 42px rgba(28,18,10,0.25), inset 0 0 40px rgba(145,125,98,0.06);
+    font: 400 13px/1.6 "Cinzel","EB Garamond",Georgia,serif;
+    border: 1px solid rgba(145,125,98,0.2);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-8px);
+    transition: all 0.3s var(--ease);
+    pointer-events: none;
+  }
+  .help-card.open {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+  .help-content p { margin: 0 0 12px; }
+  .help-content p:last-child { margin: 0; }
+  body.mobile .help-content.desktop-help { display: none; }
+  body:not(.mobile) .help-content.mobile-help { display: none; }
+  body.mobile .help-card {
+    width: calc(100vw - 32px - env(safe-area-inset-left) - env(safe-area-inset-right));
+    right: max(16px, env(safe-area-inset-right));
+    max-width: 320px;
+  }
+  body.reading .help-toggle, body.reading .help-card {
+    opacity: 0; pointer-events: none;
+  }
 
   /* ---------- catalogue rail ---------- */
   footer{position:fixed;left:0;right:0;bottom:0;z-index:15;padding:30px 0 22px;
@@ -355,10 +416,10 @@
     color:var(--ink);font:italic 400 clamp(13px,1vw,17px)/42px Newsreader,Georgia,serif;letter-spacing:.045em}
   @keyframes ticker-loop{to{transform:translate3d(-25%,0,0)}}
   body.scene-paused .ticker-track{animation-play-state:paused}
-  body.mobile footer.ticker{display:flex;height:36px;bottom:0}
+  body.mobile footer.ticker{display:flex;height:36px;bottom:env(safe-area-inset-bottom)}
   body.mobile.reading footer.ticker{display:none}
   body.mobile .ticker-track span{font-size:12px;line-height:36px}
-  body.mobile .mbar{bottom:36px}
+  body.mobile .mbar{bottom:calc(36px + env(safe-area-inset-bottom))}
   @media (prefers-reduced-motion:reduce){
     footer.ticker{transition:none}
     .ticker-track{width:100%;justify-content:center;animation:none;transform:none}
@@ -378,28 +439,30 @@
   .camera-actions{display:flex;gap:6px;margin-top:9px}
   .camera-actions button{flex:1;border:0;border-radius:6px;padding:7px;cursor:pointer;font:600 11px Inter,sans-serif}
   .camera-status{min-height:15px;margin:6px 0 0;color:#c9bda9;font-size:10px}
-  body.mobile .mobile-camera-panel{display:none!important}
+  @media(max-width:767px){.mobile-camera-panel{display:block!important;top:calc(44px + env(safe-area-inset-top));max-height:calc(48vh - 54px);overflow:auto}}
 
   /* ---------- loader ---------- */
-  .loader{position:fixed;inset:0;z-index:30;background:#dff1d8;color:#17261f;
+  .loader{position:fixed;inset:0;z-index:30;background:#ffffff;color:#000000;
+    display:flex;align-items:center;justify-content:center;
     overflow:hidden;pointer-events:auto;opacity:1;visibility:visible;
     transition:opacity .55s ease,visibility 0s linear .55s}
   .loader::after{content:"";position:absolute;inset:0;pointer-events:none;
-    box-shadow:inset 0 -18vh 22vh rgba(71,123,155,.16),inset 0 0 7rem rgba(255,255,255,.28)}
+    box-shadow:inset 0 -18vh 22vh rgba(0,0,0,.05),inset 0 0 7rem rgba(255,255,255,.28)}
   .loader.gone{opacity:0;visibility:hidden}
-  .loader-copy{position:absolute;right:clamp(18px,3vw,48px);bottom:clamp(102px,15vw,174px);
-    margin:0;font:600 clamp(11px,.8vw,14px)/1 Inter,sans-serif;letter-spacing:.18em;
-    text-transform:uppercase;color:rgba(23,38,31,.62)}
+  .loader-msg{text-align:center;font:400 clamp(15px, 1.3vw, 18px)/1.5 "Cinzel","EB Garamond",Georgia,serif;
+    color:#111;max-width:80%;margin-top:-30px;}
   .loader-count{position:absolute;right:clamp(12px,2.4vw,38px);bottom:clamp(5px,1.4vw,22px);
-    display:flex;align-items:flex-end;font:700 clamp(92px,13vw,210px)/.78 Inter,sans-serif;
-    letter-spacing:-.075em;text-shadow:0 14px 42px rgba(65,105,137,.18)}
-  .loader-count small{margin:0 0 .08em .16em;font:700 clamp(18px,2.2vw,34px)/1 Inter,sans-serif;
-    letter-spacing:0;color:rgba(23,38,31,.72)}
-  .loader-progress{position:absolute;left:0;right:0;bottom:0;height:3px;background:rgba(45,80,65,.10)}
+    display:flex;align-items:flex-end;font:700 clamp(92px,13vw,210px)/.78 "Cinzel","EB Garamond",Georgia,serif;
+    letter-spacing:-.075em;text-shadow:0 14px 42px rgba(0,0,0,.05);color:#000}
+  .loader-count small{margin:0 0 .08em .16em;font:700 clamp(18px,2.2vw,34px)/1 "Cinzel","EB Garamond",Georgia,serif;
+    letter-spacing:0;color:#000}
+  @media(max-width:767px){
+    .loader-count{bottom:calc(28px + env(safe-area-inset-bottom));font-size:clamp(64px,20vw,92px)}
+  }
+  .loader-progress{position:absolute;left:0;right:0;bottom:0;height:3px;background:rgba(0,0,0,.10)}
   .loader-progress i{display:block;width:100%;height:100%;transform-origin:left;transform:scaleX(.01);
-    background:#274d3b;transition:transform .18s linear}
-  .loader.fallback .loader-copy{color:#69402f}
-  .loader.fallback .loader-progress i{background:#8c5a42}
+    background:#000;transition:transform .18s linear}
+  .loader.fallback .loader-progress i{background:#000}
 </style>
 
 <canvas id="gl"></canvas>
@@ -505,10 +568,25 @@
 <header class="brand-header" role="banner" aria-label="PIXIDIMWORLD Stories">
   <h1 class="brand-title">PIXIDIMWORLD STORIES</h1>
 </header>
+<div id="help-toggle" class="help-toggle" aria-label="Help" role="button" tabindex="0">?</div>
+<div id="help-card" class="help-card" aria-hidden="true">
+  <div class="help-content desktop-help">
+    <p>Move your mouse around the scene to experience the 3D parallax view.</p>
+    <p>Hover over books to preview your selection.</p>
+    <p>Click a book to bring it forward and view its information.</p>
+    <p>Click Read to open the reading experience.</p>
+  </div>
+  <div class="help-content mobile-help">
+    <p>Drag left or right to explore the library.</p>
+    <p>Move your finger around the books to interact with selections.</p>
+    <p>Tap a book to bring it forward and view its information.</p>
+    <p>Tap Read to open the reading experience.</p>
+  </div>
+</div>
 <footer class="ticker" aria-label="Welcome to PIXIDIMWORLD Stories">
   <div class="ticker-track">
-    <span>Welcome to PIXIDIMWORLD Stories</span><span aria-hidden="true">Welcome to PIXIDIMWORLD Stories</span>
-    <span aria-hidden="true">Welcome to PIXIDIMWORLD Stories</span><span aria-hidden="true">Welcome to PIXIDIMWORLD Stories</span>
+    <span>Welcome to PIXIDIMWORLD STORIES</span><span aria-hidden="true">Welcome to PIXIDIMWORLD STORIES</span>
+    <span aria-hidden="true">Welcome to PIXIDIMWORLD STORIES</span><span aria-hidden="true">Welcome to PIXIDIMWORLD STORIES</span>
   </div>
 </footer>
 
@@ -520,7 +598,7 @@
   </div>
 </div>
 <div class="loader" id="loader" role="progressbar" aria-label="Loading library" aria-valuemin="1" aria-valuemax="100" aria-valuenow="1">
-  <p class="loader-copy">Loading library</p>
+  <div class="loader-msg">Need help exploring? Use the ? icon at the top right once you enter.</div>
   <div class="loader-count"><span id="loadcount">1</span><small>%</small></div>
   <div class="loader-progress" aria-hidden="true"><i id="barfill"></i></div>
 </div>
@@ -743,8 +821,7 @@ MARK_SRC['the-great-climber'] = MARK_SRC['nightreign'];
 const BACK_PLATE = {};
 const BACK_PLATE_SRC = {
   'the-great-climber':'/the-great-climber-back.png',
-  'elden-ring':'__MIDDLEMAN_BACK__',
-  'ds2':'__DREAMERS_BACK__'
+  'elden-ring':'__MIDDLEMAN_BACK__'
 };
 function decodePlate(src,label,store){
   return new Promise(resolve=>{
@@ -848,74 +925,40 @@ function artBack(b,W,H){
     return c;
   }
   const light=isLight(b.cloth);
-  const ink = light? '#26221c' : '#efe8da';
-  g.fillStyle=b.cloth;g.fillRect(0,0,W,H);
-  g.fillStyle=rg(g,W*.5,H*.34,W*.05,W*.95,
-    [[0,light?'rgba(255,255,255,.55)':'rgba(255,255,255,.10)'],[1,'rgba(0,0,0,0)']]);
+  const ink = '#efe8da';
+  
+  // NEW BLACK BACK DESIGN
+  g.fillStyle = '#050505';
   g.fillRect(0,0,W,H);
-  // three plates lifted straight out of the volume
-  const img=PLATE[b.id];
-  const crops=[[0.06,0.05,0.44],[0.30,0.36,0.42],[0.54,0.66,0.40]];
-  for(let i=0;i<3;i++){
-    const x=W*(.10+i*.28), y=H*.115, w=W*.24, h=w*1.14;
-    g.save();
-    g.fillStyle=light?'#ddd5c4':'#2a2621';g.fillRect(x,y,w,h);
-    if(img){
-      const cw=img.naturalWidth*crops[i][2], ch=cw*(h/w);
-      const sx=Math.min(img.naturalWidth-cw, img.naturalWidth*crops[i][0]);
-      const sy=Math.min(img.naturalHeight-ch, img.naturalHeight*crops[i][1]);
-      g.drawImage(img,sx,sy,cw,ch,x,y,w,h);
-    } else {
-      g.fillStyle=lg(g,x,y,x+w,y+h,[[0,b.spine],[1,'#231f1b']]);g.fillRect(x,y,w,h);
-    }
-    g.globalAlpha=.28;g.fillStyle=b.cloth;g.fillRect(x,y,w,h);g.globalAlpha=1;
-    g.strokeStyle=light?'rgba(40,34,28,.35)':'rgba(240,232,218,.28)';g.lineWidth=W*.0025;
-    g.strokeRect(x,y,w,h);
-    g.restore();
-  }
-  g.fillStyle=ink;g.globalAlpha=.55;g.font=`400 ${W*.017}px ${MONO}`;g.textAlign='left';
-  g.fillText('PLATES '+(21+22*b.title.length)+'ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¦ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã¢â‚¬Å“'+(180+31*b.title.length),W*.10,H*.415);
-  if(b.temporaryStory){
-    g.globalAlpha=.88;g.font=`500 ${W*.032}px ${SERIF}`;g.fillStyle=ink;
-    g.fillText(b.title,W*.10,H*.475);
-  }
-  g.globalAlpha=1;
-  // blurb
-  g.font=`400 ${W*.030}px ${SERIF}`;g.fillStyle=ink;
-  const words=b.blurb.split(' ');let line='',y=H*.505;
+  
+  // Heading: ABOUT THIS BOOK
+  g.textAlign = 'center';
+  g.textBaseline = 'middle';
+  g.fillStyle = ink;
+  g.font = `600 ${W*.025}px ${SANS}`;
+  tracked(g, 'ABOUT THIS BOOK', W*0.5, H*0.25, W*0.025*0.2, 'center');
+  
+  // Blurb
+  g.font = `400 ${W*.035}px ${SERIF}`;
+  const words = b.blurb.split(' ');
+  let line = '', y = H*0.35;
   for(const w0 of words){
-    const t=line?line+' '+w0:w0;
-    if(g.measureText(t).width>W*.80){g.fillText(line,W*.10,y);line=w0;y+=W*.042;}
-    else line=t;
+    const t = line ? line + ' ' + w0 : w0;
+    if(g.measureText(t).width > W*0.75){
+      g.fillText(line, W*0.5, y);
+      line = w0;
+      y += W*0.055;
+    } else {
+      line = t;
+    }
   }
-  g.fillText(line,W*.10,y);
-  g.globalAlpha=.7;g.font=`400 ${W*.020}px ${SANS}`;
-  tracked(g,`${STUDIO.toUpperCase()} ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¡Ã‚Â· ${b.year}`,W*.10,y+W*.075,W*.020*.18,'left');
-  g.globalAlpha=1;
-  // imprint roundel
-  g.save();g.translate(W*.13,H*.855);
-  g.strokeStyle=ink;g.globalAlpha=.55;g.lineWidth=W*.0035;
-  g.beginPath();g.arc(0,0,W*.058,0,TAU);g.stroke();
-  g.globalAlpha=1;g.fillStyle=ink;
-  g.font=`500 ${W*.030}px ${SERIF}`;g.textAlign='center';g.textBaseline='middle';
-  g.fillText('AP',0,W*.002);g.restore();
-  g.textAlign='left';g.textBaseline='alphabetic';
-  g.fillStyle=ink;g.font=`500 ${W*.022}px ${SANS}`;
-  tracked(g,'ASHEN PRESS',W*.215,H*.845,W*.022*.30,'left');
-  g.globalAlpha=.6;g.font=`400 ${W*.020}px ${SANS}`;
-  g.fillText('Volume '+b.vol+' of the Worlds series',W*.215,H*.875);
-  g.globalAlpha=1;
-  // barcode
-  const bx=W*.60,by=H*.815,bw=W*.30,bh=H*.085;
-  g.fillStyle=light?'#ffffff':'#f2ece0';g.fillRect(bx,by,bw,bh);
-  g.fillStyle='#15120f';
-  let px=bx+bw*.04;
-  while(px<bx+bw*.96){const w=W*(.002+ (r()<.3?.006:.002)*r()*3);g.fillRect(px,by+bh*.10,w,bh*.66);px+=w+W*(.002+r()*.004);}
-  g.font=`400 ${W*.017}px ${MONO}`;g.textAlign='center';
-  g.fillText('9 78'+(1000000+((r()*8999999)|0)),bx+bw/2,by+bh*.93);
-  g.textAlign='right';g.fillStyle=ink;g.globalAlpha=.75;g.font=`400 ${W*.020}px ${SANS}`;
-  g.fillText('ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â£68.00',W*.90,H*.775);g.globalAlpha=1;
-  grain(g,W,H,8,5);
+  g.fillText(line, W*0.5, y);
+  
+  // Author/creator at the bottom
+  g.font = `500 ${W*.022}px ${SANS}`;
+  tracked(g, 'PIXIDIMWORLD', W*0.5, H*0.85, W*0.022*0.2, 'center');
+  
+  grain(g,W,H,6,b.id.length*37+5);
   return c;
 }
 function artSpine(b,W,H){
@@ -1740,7 +1783,7 @@ function hoverOut(B){
 }
 function activeZ(){
   const camZ=camera.position.z;
-  const fill=MOBILE?0.34:0.52;
+  const fill=MOBILE?0.44:0.52;
   const halfH=(SZH*0.5)/fill;
   const activeFov=MOBILE?camera.fov:K.fov;
   const dv=halfH/Math.tan(activeFov*Math.PI/360);
@@ -1883,7 +1926,7 @@ function frameCamera(){
   camera.updateProjectionMatrix();
 }
 function setupMobileCameraPanel(){
-  if(!DEV_CAMERA_PANEL||mobileCameraPanel)return;
+  if(mobileCameraPanel)return;
   mobileCameraInitial=JSON.parse(JSON.stringify(MOBILE_CAMERA_CONFIG));
   mobileCameraPanel=document.createElement('details');
   mobileCameraPanel.className='camera-panel mobile-camera-panel';
@@ -1939,6 +1982,7 @@ function setupMobileCameraPanel(){
   });
   refresh();
 }
+setupMobileCameraPanel();
 function setupDesktopCameraPanel(){
   if(!DEV_CAMERA_PANEL||cameraPanel)return;
   initializeDesktopCamera();
@@ -2576,23 +2620,41 @@ function tick(now){
   updateEntranceBounce(now);
   const dogMoving=!!(dogRun&&dogRun.started&&!dogRun.finished);
   if(dogMoving)renderer.shadowMap.needsUpdate=true;
-  if(dogMixer&&dogRun?.started&&!dogRun.finished)dogMixer.update(motionDt);
+  if(dogMixer&&dogRun?.started&&!dogRun.finished&&dogRun.elapsed>=0)dogMixer.update(motionDt);
   if(dogRun&&dogRun.started&&!dogRun.finished){
     dogRun.elapsed+=motionDt;
-    dogRun.mover.position.copy(dogRun.start)
-      .addScaledVector(dogRun.forward,dogRun.speed*dogRun.elapsed);
-    dogRun.mover.updateMatrixWorld(true);
-    camera.updateMatrixWorld();
-    dogViewProjection.multiplyMatrices(camera.projectionMatrix,camera.matrixWorldInverse);
-    dogViewFrustum.setFromProjectionMatrix(dogViewProjection);
-    dogBounds.setFromObject(dogRun.root);
-    const hasExited=dogRun.elapsed>0.35&&!dogViewFrustum.intersectsBox(dogBounds);
-    if(hasExited||dogRun.elapsed>=dogRun.maxDuration){
-      dogRun.finished=true;
-      dogRun.mover.visible=false;
-      if(dogMixer){
-        dogMixer.stopAllAction();
-        dogMixer=null;
+    if(dogRun.elapsed >= 0) {
+      dogRun.mover.visible = !REDUCED;
+      dogRun.mover.position.copy(dogRun.start)
+        .addScaledVector(dogRun.forward,dogRun.speed*dogRun.elapsed);
+      dogRun.mover.updateMatrixWorld(true);
+      camera.updateMatrixWorld();
+      dogViewProjection.multiplyMatrices(camera.projectionMatrix,camera.matrixWorldInverse);
+      dogViewFrustum.setFromProjectionMatrix(dogViewProjection);
+      dogBounds.setFromObject(dogRun.root);
+      
+      const outOfView = !dogViewFrustum.intersectsBox(dogBounds);
+      if(outOfView && dogRun.elapsed > 0.35) {
+        if(dogRun.exitTime === undefined) dogRun.exitTime = dogRun.elapsed;
+      } else {
+        dogRun.exitTime = undefined;
+      }
+      
+      const hasExited = (dogRun.exitTime !== undefined && (dogRun.elapsed - dogRun.exitTime) > 0.3) || dogRun.elapsed >= dogRun.maxDuration;
+      if(hasExited){
+        dogRun.passes = (dogRun.passes || 0) + 1;
+        if(dogRun.passes < 2) {
+          dogRun.elapsed = -2.0; // 2-second delay
+          dogRun.exitTime = undefined;
+          dogRun.mover.visible = false;
+        } else {
+          dogRun.finished=true;
+          dogRun.mover.visible=false;
+          if(dogMixer){
+            dogMixer.stopAllAction();
+            dogMixer=null;
+          }
+        }
       }
     }
   }
@@ -2683,8 +2745,28 @@ for(const type of ['pointermove','pointerdown','pointerup','pointercancel','whee
 }
 
 /* ---- boot ---- */
+const helpToggle=document.getElementById('help-toggle'), helpCard=document.getElementById('help-card');
+if(helpToggle && helpCard){
+  const stopP = e => e.stopPropagation();
+  helpToggle.addEventListener('pointerdown', stopP);
+  helpToggle.addEventListener('touchstart', stopP, {passive:true});
+  helpCard.addEventListener('pointerdown', stopP);
+  helpCard.addEventListener('touchstart', stopP, {passive:true});
+  
+  helpToggle.addEventListener('click', e => {
+    e.stopPropagation();
+    helpCard.classList.toggle('open');
+  });
+  document.addEventListener('pointerdown', e => {
+    if(!helpCard.contains(e.target) && !helpToggle.contains(e.target)) helpCard.classList.remove('open');
+  });
+  document.addEventListener('click', e => {
+    if(!helpCard.contains(e.target) && !helpToggle.contains(e.target)) helpCard.classList.remove('open');
+  });
+}
+
 const loader=document.getElementById('loader'), barfill=document.getElementById('barfill'),
-      loadcount=document.getElementById('loadcount'),loaderCopy=loader.querySelector('.loader-copy'),
+      loadcount=document.getElementById('loadcount'),loaderCopy=loader.querySelector('.loader-msg'),
       ticker=document.querySelector('footer.ticker');
 const READINESS={
   status:'loading',environment:false,fonts:null,plates:null,books:0,bookBacks:null,floorTextHeaders:0,controls:true,ticker:true,
