@@ -3,10 +3,24 @@ import { AshenPress } from "./shaders/ashen-press/AshenPress";
 import { LandingPageFrame } from "./shaders/landing-pages/LandingPageFrame";
 import { getBookSpreads, getReaderSectionCopy, type BookInfo } from "./readerSpreads";
 import "./shaders/threeui.css";
-import backgroundMusicUrl from "../music.bg.mp3?url";
+import backgroundMusicUrl from "../music-bg.mp3?url";
 import clickSoundUrl from "../click.mp3?url";
 
 type MobileReaderPage = ReturnType<typeof getReaderSectionCopy>;
+
+function splitMobileReaderPage(page: MobileReaderPage, maxWords = 42): MobileReaderPage[] {
+  const words = page.summary.trim().split(/\s+/);
+  if (words.length <= maxWords) return [page];
+
+  const pages: MobileReaderPage[] = [];
+  for (let start = 0; start < words.length; start += maxWords) {
+    pages.push({
+      heading: start === 0 ? page.heading : `${page.heading} — Continued`,
+      summary: words.slice(start, start + maxWords).join(" "),
+    });
+  }
+  return pages;
+}
 
 function MobileReaderPaper({
   page,
@@ -20,14 +34,13 @@ function MobileReaderPaper({
   page: MobileReaderPage;
   pageIndex: number;
   storyTitle: string;
-  position: "upper" | "lower" | "focused";
+  position: "overview" | "focused";
   focused?: boolean;
   className?: string;
   onClick?: () => void;
 }) {
   const content = (
     <>
-      <img className="mobile-paper-texture" src="/paper.png" alt="" aria-hidden="true" />
       <span className="mobile-paper-copy">
         {focused ? <strong className="mobile-paper-story-title">{storyTitle}</strong> : null}
         <span className="mobile-paper-section">{page.heading}</span>
@@ -64,8 +77,8 @@ export function Scene() {
   const [zoomLevel, setZoomLevel] = useState(1);
   const [currentSpreadIndex, setCurrentSpreadIndex] = useState(0);
   const [totalSpreads, setTotalSpreads] = useState(6);
-  const [mobilePairStart, setMobilePairStart] = useState(0);
-  const [mobileOutgoingPairStart, setMobileOutgoingPairStart] = useState<number | null>(null);
+  const [mobilePageIndex, setMobilePageIndex] = useState(0);
+  const [mobileOutgoingPage, setMobileOutgoingPage] = useState<number | null>(null);
   const [mobileFocusedPage, setMobileFocusedPage] = useState<number | null>(null);
   const [mobileOutgoingFocusedPage, setMobileOutgoingFocusedPage] = useState<number | null>(null);
   const [mobileTransitionDirection, setMobileTransitionDirection] = useState<"next" | "prev" | null>(null);
@@ -84,7 +97,33 @@ export function Scene() {
   const clickSoundRef = useRef<HTMLAudioElement | null>(null);
   const musicStartedRef = useRef(false);
   const musicNeedsInteractionRef = useRef(false);
+  const audioScopeRef = useRef<"library" | "reader">("library");
   const mobileReaderTimerRef = useRef<number | null>(null);
+
+  const pauseMainAudioForReader = () => {
+    audioScopeRef.current = "reader";
+    backgroundMusicRef.current?.pause();
+    const clickSound = clickSoundRef.current;
+    if (clickSound) {
+      clickSound.pause();
+      clickSound.currentTime = 0;
+    }
+  };
+
+  const resumeMainAudioForLibrary = () => {
+    audioScopeRef.current = "library";
+    if (!musicStartedRef.current) return;
+    if (document.hidden) {
+      musicNeedsInteractionRef.current = true;
+      return;
+    }
+    const backgroundMusic = backgroundMusicRef.current;
+    if (!backgroundMusic || !backgroundMusic.paused) return;
+    musicNeedsInteractionRef.current = false;
+    void backgroundMusic.play().catch(() => {
+      musicNeedsInteractionRef.current = true;
+    });
+  };
 
   useEffect(() => {
     const backgroundMusic = new Audio(backgroundMusicUrl);
@@ -97,7 +136,7 @@ export function Scene() {
     clickSoundRef.current = clickSound;
 
     const playBackgroundMusic = () => {
-      if (document.hidden) {
+      if (audioScopeRef.current !== "library" || document.hidden) {
         musicNeedsInteractionRef.current = true;
         return;
       }
@@ -114,6 +153,7 @@ export function Scene() {
     };
 
     const handleValidInteraction = (kind: string) => {
+      if (audioScopeRef.current !== "library") return;
       playClickSound();
       if (kind === "unlock" && !musicStartedRef.current) {
         musicStartedRef.current = true;
@@ -200,6 +240,7 @@ export function Scene() {
 
   const triggerOpenTransition = () => {
     if (transitionLockedRef.current) return;
+    pauseMainAudioForReader();
     transitionLockedRef.current = true;
     readerOpenRequestedRef.current = true;
     setIsTransitioning(true);
@@ -210,6 +251,7 @@ export function Scene() {
 
   const handleReturnToLibrary = () => {
     if (transitionLockedRef.current) return;
+    resumeMainAudioForLibrary();
     transitionLockedRef.current = true;
     readerOpenRequestedRef.current = false;
     setReaderLoading(false);
@@ -219,7 +261,7 @@ export function Scene() {
     setIsPageTurning(false);
     setMobileFocusedPage(null);
     setMobileOutgoingFocusedPage(null);
-    setMobileOutgoingPairStart(null);
+    setMobileOutgoingPage(null);
     setMobileTransitionDirection(null);
     if (mobileReaderTimerRef.current !== null) {
       window.clearTimeout(mobileReaderTimerRef.current);
@@ -244,10 +286,10 @@ export function Scene() {
         readerReadyRef.current = false;
         setCurrentSpreadIndex(0);
         setZoomLevel(1);
-        setMobilePairStart(0);
+        setMobilePageIndex(0);
         setMobileFocusedPage(null);
         setMobileOutgoingFocusedPage(null);
-        setMobileOutgoingPairStart(null);
+        setMobileOutgoingPage(null);
       }
       activeBookRef.current = book;
       setActiveBook(book);
@@ -474,6 +516,7 @@ export function Scene() {
         }
       } catch (err) {
         console.warn("Could not inject custom spreads into sketchbook frame:", err);
+        resumeMainAudioForLibrary();
         readerOpenRequestedRef.current = false;
         setReaderLoading(false);
         finishTransition();
@@ -499,27 +542,30 @@ export function Scene() {
   };
 
   const readerCopy = getReaderSectionCopy(activeBook, currentSpreadIndex);
-  const mobilePageCount = Math.max(1, Math.min(totalSpreads, 6));
-  const mobilePages = Array.from({ length: mobilePageCount }, (_, index) => getReaderSectionCopy(activeBook, index));
+  const mobilePages = Array.from(
+    { length: Math.max(1, Math.min(totalSpreads, 6)) },
+    (_, index) => getReaderSectionCopy(activeBook, index),
+  ).flatMap((page) => splitMobileReaderPage(page));
+  const mobilePageCount = mobilePages.length;
   const mobileStoryTitle = activeBook?.title || "The Great Climber";
 
   const finishMobileReaderTransition = () => {
     if (mobileReaderTimerRef.current !== null) window.clearTimeout(mobileReaderTimerRef.current);
     mobileReaderTimerRef.current = window.setTimeout(() => {
-      setMobileOutgoingPairStart(null);
+      setMobileOutgoingPage(null);
       setMobileOutgoingFocusedPage(null);
       setMobileTransitionDirection(null);
       mobileReaderTimerRef.current = null;
     }, 380);
   };
 
-  const handleMobilePairStep = (direction: "prev" | "next") => {
+  const handleMobilePageStep = (direction: "prev" | "next") => {
     if (mobileTransitionDirection) return;
-    const nextPairStart = mobilePairStart + (direction === "next" ? 2 : -2);
-    if (nextPairStart < 0 || nextPairStart >= mobilePageCount) return;
-    setMobileOutgoingPairStart(mobilePairStart);
+    const nextPage = mobilePageIndex + (direction === "next" ? 1 : -1);
+    if (nextPage < 0 || nextPage >= mobilePageCount) return;
+    setMobileOutgoingPage(mobilePageIndex);
     setMobileTransitionDirection(direction);
-    setMobilePairStart(nextPairStart);
+    setMobilePageIndex(nextPage);
     finishMobileReaderTransition();
   };
 
@@ -530,6 +576,7 @@ export function Scene() {
     setMobileOutgoingFocusedPage(mobileFocusedPage);
     setMobileTransitionDirection(direction);
     setMobileFocusedPage(nextPage);
+    setMobilePageIndex(nextPage);
     finishMobileReaderTransition();
   };
 
@@ -653,59 +700,40 @@ export function Scene() {
               <img className="mobile-reader-flower flower-top" src="/flower.png" alt="" aria-hidden="true" />
               <img className="mobile-reader-flower flower-bottom" src="/flower.png" alt="" aria-hidden="true" />
 
-              {mobileOutgoingPairStart !== null ? (
+              {mobileOutgoingPage !== null ? (
                 <div className={`mobile-paper-pair is-outgoing ${mobileTransitionDirection}`} aria-hidden="true">
-                  {mobilePages[mobileOutgoingPairStart] ? (
+                  {mobilePages[mobileOutgoingPage] ? (
                     <MobileReaderPaper
-                      page={mobilePages[mobileOutgoingPairStart]}
-                      pageIndex={mobileOutgoingPairStart}
+                      page={mobilePages[mobileOutgoingPage]}
+                      pageIndex={mobileOutgoingPage}
                       storyTitle={mobileStoryTitle}
-                      position="upper"
-                      className="overview-paper"
-                    />
-                  ) : null}
-                  {mobilePages[mobileOutgoingPairStart + 1] ? (
-                    <MobileReaderPaper
-                      page={mobilePages[mobileOutgoingPairStart + 1]}
-                      pageIndex={mobileOutgoingPairStart + 1}
-                      storyTitle={mobileStoryTitle}
-                      position="lower"
+                      position="overview"
                       className="overview-paper"
                     />
                   ) : null}
                 </div>
               ) : null}
 
-              <div className={`mobile-paper-pair${mobileOutgoingPairStart !== null ? ` is-incoming ${mobileTransitionDirection}` : ""}`}>
-                {mobilePages[mobilePairStart] ? (
+              <div className={`mobile-paper-pair${mobileOutgoingPage !== null ? ` is-incoming ${mobileTransitionDirection}` : ""}`}>
+                {mobilePages[mobilePageIndex] ? (
                   <MobileReaderPaper
-                    page={mobilePages[mobilePairStart]}
-                    pageIndex={mobilePairStart}
+                    page={mobilePages[mobilePageIndex]}
+                    pageIndex={mobilePageIndex}
                     storyTitle={mobileStoryTitle}
-                    position="upper"
+                    position="overview"
                     className="overview-paper"
-                    onClick={() => setMobileFocusedPage(mobilePairStart)}
-                  />
-                ) : null}
-                {mobilePages[mobilePairStart + 1] ? (
-                  <MobileReaderPaper
-                    page={mobilePages[mobilePairStart + 1]}
-                    pageIndex={mobilePairStart + 1}
-                    storyTitle={mobileStoryTitle}
-                    position="lower"
-                    className="overview-paper"
-                    onClick={() => setMobileFocusedPage(mobilePairStart + 1)}
+                    onClick={() => setMobileFocusedPage(mobilePageIndex)}
                   />
                 ) : null}
               </div>
 
-              <nav className="mobile-overview-nav" aria-label="Story page pair navigation">
+              <nav className="mobile-overview-nav" aria-label="Story page navigation">
                 <button
                   className="mobile-overview-control previous"
                   type="button"
-                  onClick={() => handleMobilePairStep("prev")}
-                  disabled={mobilePairStart === 0 || mobileTransitionDirection !== null}
-                  aria-label="Show previous two story pages"
+                  onClick={() => handleMobilePageStep("prev")}
+                  disabled={mobilePageIndex === 0 || mobileTransitionDirection !== null}
+                  aria-label="Previous story page"
                 >
                   <span aria-hidden="true">←</span>
                   <small>PREVIOUS</small>
@@ -713,9 +741,9 @@ export function Scene() {
                 <button
                   className="mobile-overview-control next"
                   type="button"
-                  onClick={() => handleMobilePairStep("next")}
-                  disabled={mobilePairStart + 2 >= mobilePageCount || mobileTransitionDirection !== null}
-                  aria-label="Show next two story pages"
+                  onClick={() => handleMobilePageStep("next")}
+                  disabled={mobilePageIndex === mobilePageCount - 1 || mobileTransitionDirection !== null}
+                  aria-label="Next story page"
                 >
                   <span aria-hidden="true">→</span>
                   <small>NEXT</small>
