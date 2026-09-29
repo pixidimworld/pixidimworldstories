@@ -8,13 +8,17 @@ body,
 #root {
   width: 100%;
   height: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
+  max-width: 100%;
   margin: 0;
+  overflow: hidden;
 }
 
 body {
-  min-width: 320px;
+  min-width: 0;
   overflow: hidden;
-  background: #acd9f2;
+  background: #ffffff;
 }
 
 .shader-frame {
@@ -24,8 +28,10 @@ body {
 
 .app-container {
   position: relative;
-  width: 100vw;
+  width: 100%;
   height: 100vh;
+  height: 100dvh;
+  max-width: 100%;
   overflow: hidden;
 }
 
@@ -42,6 +48,7 @@ body {
   inset: 0;
   width: 100vw;
   height: 100vh;
+  height: 100dvh;
   overflow: hidden;
   background-color: #179b99;
   z-index: 100;
@@ -405,6 +412,9 @@ body {
 .read-loading-screen {
   position: fixed;
   inset: 0;
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
   z-index: 200;
   display: grid;
   place-items: center;
@@ -456,11 +466,11 @@ body {
 
 .reading-page-bg {
   background-color: #f8fbf6;
-  background-image: url("/page%202bg.png");
+  background-image: url("/page.bg.png");
   background-position: center top;
   background-repeat: no-repeat;
   background-size: cover;
-  opacity: 0.86;
+  opacity: 1;
 }
 
 .reading-layout {
@@ -681,15 +691,15 @@ body {
     width: 100%;
     max-width: none;
     margin: 24px auto 0;
-    font-size: 68px;
+    font-size: clamp(54px, 4vw, 68px);
   }
 
   .reading-page-nav.previous {
-    left: 32px;
+    left: max(clamp(18px, 2vw, 32px), env(safe-area-inset-left));
   }
 
   .reading-page-nav.next {
-    right: 0;
+    right: max(0px, env(safe-area-inset-right));
   }
 
   .reading-content-panel {
@@ -732,7 +742,7 @@ body {
   }
 
   .reading-controls-pill {
-    bottom: 27px;
+    bottom: max(27px, env(safe-area-inset-bottom));
     left: calc(37.5% + 20px);
     gap: 16px;
     padding: 8px 18px;
@@ -765,7 +775,7 @@ body {
 
   .reading-return-btn {
     top: 4px;
-    right: 18px;
+    right: max(18px, env(safe-area-inset-right));
     left: auto;
     font-size: 17px;
   }
@@ -804,7 +814,7 @@ body {
     left: 0;
     display: block;
     height: auto;
-    padding: 27px 34px calc(86px + env(safe-area-inset-bottom));
+    padding: clamp(20px, 3.7dvh, 27px) clamp(20px, 8vw, 34px) calc(86px + env(safe-area-inset-bottom));
     border-top: 1px solid rgba(28, 72, 59, 0.2);
     border-left: 0;
     background: rgba(255, 255, 255, 0.97);
@@ -947,5 +957,485 @@ body {
   .read-loading-dots i,
   .reading-summary-copy::after {
     opacity: 1;
+  }
+}
+
+/* Mobile paper reader. Desktop keeps the existing book/page-flip structure. */
+.mobile-reader {
+  display: none;
+}
+
+@media (max-width: 760px) {
+  .reading-page-container {
+    background: #8fbc6f;
+  }
+
+  .reading-page-bg {
+    width: 100%;
+    height: 100%;
+    background-color: #8fbc6f;
+    background-image: url("/mobile.page.png");
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    opacity: 1;
+  }
+
+  .reading-layout,
+  .reading-controls-pill {
+    display: none;
+  }
+
+  .mobile-reader {
+    --mobile-paper-width: min(49vw, 26dvh);
+    position: absolute;
+    inset: 0;
+    z-index: 10;
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    color: #11140d;
+    font-family: "Newsreader", "EB Garamond", Georgia, serif;
+  }
+
+  .mobile-reader-return {
+    position: absolute;
+    top: max(15px, calc(env(safe-area-inset-top) + 8px));
+    left: max(18px, calc(env(safe-area-inset-left) + 14px));
+    z-index: 50;
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    padding: 4px;
+    border: 0;
+    background: transparent;
+    color: #10130c;
+    font: 600 clamp(24px, 7.2vw, 38px)/1 "Instrument Serif", "Newsreader", Georgia, serif;
+    cursor: pointer;
+  }
+
+  .mobile-reader-return svg {
+    width: clamp(42px, 12vw, 58px);
+    height: clamp(31px, 9vw, 44px);
+    overflow: visible;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 3.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .mobile-reader-overview {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    transition: filter 260ms ease, transform 260ms ease;
+  }
+
+  .mobile-reader.is-focused .mobile-reader-overview {
+    filter: blur(7px) brightness(0.58);
+    transform: scale(1.025);
+    pointer-events: none;
+  }
+
+  .mobile-reader-flower {
+    position: absolute;
+    z-index: 2;
+    width: min(34vw, 22dvh);
+    height: auto;
+    pointer-events: none;
+    user-select: none;
+  }
+
+  .mobile-reader-flower.flower-top {
+    top: -4%;
+    right: -9%;
+    transform: rotate(24deg);
+  }
+
+  .mobile-reader-flower.flower-bottom {
+    bottom: -8%;
+    left: -12%;
+    transform: rotate(-158deg);
+  }
+
+  .mobile-paper-pair {
+    position: absolute;
+    inset: 0;
+    z-index: 5;
+    pointer-events: none;
+  }
+
+  .mobile-paper-card {
+    position: absolute;
+    box-sizing: border-box;
+    width: var(--mobile-paper-width);
+    aspect-ratio: 428 / 600;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    color: #1d1b16;
+    text-align: left;
+    transform: translate3d(0, 0, 0);
+    opacity: 1;
+  }
+
+  button.mobile-paper-card {
+    pointer-events: auto;
+    cursor: pointer;
+    touch-action: manipulation;
+  }
+
+  .mobile-paper-card.upper {
+    top: max(58px, 9dvh);
+    left: max(18px, calc(env(safe-area-inset-left) + 5vw));
+  }
+
+  .mobile-paper-card.lower {
+    top: 45dvh;
+    right: max(18px, calc(env(safe-area-inset-right) + 5vw));
+  }
+
+  .mobile-paper-texture {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    pointer-events: none;
+    user-select: none;
+    filter: drop-shadow(0 9px 8px rgba(41, 50, 25, 0.22));
+  }
+
+  .mobile-paper-copy {
+    position: absolute;
+    inset: 13% 10% 10% 10%;
+    z-index: 2;
+    display: flex;
+    min-width: 0;
+    min-height: 0;
+    flex-direction: column;
+    overflow: hidden;
+    color: #201d17;
+  }
+
+  .mobile-paper-section {
+    display: block;
+    padding-right: 16%;
+    font: 600 clamp(9px, 2.6vw, 13px)/1.15 "Instrument Serif", "Newsreader", Georgia, serif;
+    letter-spacing: 0.025em;
+  }
+
+  .mobile-paper-body {
+    display: -webkit-box;
+    margin-top: clamp(6px, 1dvh, 10px);
+    overflow: hidden;
+    font: 400 clamp(7px, 1.95vw, 10px)/1.32 "Newsreader", "EB Garamond", Georgia, serif;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 8;
+  }
+
+  .mobile-paper-number {
+    margin-top: auto;
+    align-self: center;
+    font-size: 8px;
+    opacity: 0.68;
+  }
+
+  .mobile-overview-nav {
+    position: absolute;
+    inset: 0;
+    z-index: 12;
+    pointer-events: none;
+  }
+
+  .mobile-overview-control {
+    position: absolute;
+    display: grid;
+    place-items: center;
+    width: clamp(62px, 19vw, 90px);
+    aspect-ratio: 1.45;
+    padding: 0;
+    border: 0;
+    border-radius: 4px;
+    background: #f5ead2;
+    color: #405b32;
+    box-shadow: 0 6px 12px rgba(42, 55, 28, 0.2);
+    cursor: pointer;
+    pointer-events: auto;
+    touch-action: manipulation;
+  }
+
+  .mobile-overview-control.previous {
+    top: 31dvh;
+    right: max(24px, calc(env(safe-area-inset-right) + 9vw));
+  }
+
+  .mobile-overview-control.next {
+    top: 48dvh;
+    left: max(24px, calc(env(safe-area-inset-left) + 9vw));
+  }
+
+  .mobile-overview-control span {
+    font: 400 clamp(32px, 10vw, 48px)/0.6 "Newsreader", Georgia, serif;
+  }
+
+  .mobile-overview-control small {
+    font: 600 8px/1 "Newsreader", Georgia, serif;
+    letter-spacing: 0.16em;
+  }
+
+  .mobile-overview-control:disabled {
+    visibility: hidden;
+    cursor: default;
+    pointer-events: none;
+  }
+
+  .mobile-reader-title {
+    position: absolute;
+    right: max(15px, calc(env(safe-area-inset-right) + 12px));
+    bottom: max(20px, calc(env(safe-area-inset-bottom) + 14px));
+    left: max(15px, calc(env(safe-area-inset-left) + 12px));
+    z-index: 10;
+    max-height: 2.06em;
+    margin: 0;
+    overflow: hidden;
+    color: #10130c;
+    font: 600 clamp(32px, 9.2vw, 57px)/1.03 "Instrument Serif", "Newsreader", Georgia, serif;
+    letter-spacing: -0.025em;
+    text-align: center;
+    text-wrap: balance;
+    text-transform: uppercase;
+  }
+}
+
+@media (max-width: 760px) {
+  .mobile-paper-pair.is-outgoing.next .mobile-paper-card.upper {
+    animation: mobile-paper-out-left 380ms cubic-bezier(0.4, 0, 0.2, 1) both;
+  }
+
+  .mobile-paper-pair.is-outgoing.next .mobile-paper-card.lower {
+    animation: mobile-paper-out-right 380ms cubic-bezier(0.4, 0, 0.2, 1) both;
+  }
+
+  .mobile-paper-pair.is-incoming.next .mobile-paper-card.upper {
+    animation: mobile-paper-in-right 380ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .mobile-paper-pair.is-incoming.next .mobile-paper-card.lower {
+    animation: mobile-paper-in-left 380ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .mobile-paper-pair.is-outgoing.prev .mobile-paper-card.upper {
+    animation: mobile-paper-out-right 380ms cubic-bezier(0.4, 0, 0.2, 1) both;
+  }
+
+  .mobile-paper-pair.is-outgoing.prev .mobile-paper-card.lower {
+    animation: mobile-paper-out-left 380ms cubic-bezier(0.4, 0, 0.2, 1) both;
+  }
+
+  .mobile-paper-pair.is-incoming.prev .mobile-paper-card.upper {
+    animation: mobile-paper-in-left 380ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .mobile-paper-pair.is-incoming.prev .mobile-paper-card.lower {
+    animation: mobile-paper-in-right 380ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .mobile-reader-focus {
+    position: absolute;
+    inset: 0;
+    z-index: 30;
+    overflow: hidden;
+    background: rgba(28, 43, 22, 0.18);
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+    animation: mobile-focus-backdrop-in 220ms ease-out both;
+  }
+
+  .mobile-focus-paper-stage {
+    position: absolute;
+    top: max(94px, calc(env(safe-area-inset-top) + 12dvh));
+    right: 0;
+    left: 0;
+    height: min(65dvh, 590px);
+    overflow: visible;
+  }
+
+  .mobile-paper-card.focused {
+    top: 0;
+    left: 50%;
+    width: min(84vw, 43dvh, 520px);
+    transform: translate3d(-50%, 0, 0);
+  }
+
+  .mobile-paper-card.focused .mobile-paper-copy {
+    inset: 12% 10% 9%;
+  }
+
+  .mobile-paper-story-title {
+    display: -webkit-box;
+    padding: 0 12% 8px 0;
+    overflow: hidden;
+    font: 600 clamp(24px, 7.2vw, 42px)/0.98 "Instrument Serif", "Newsreader", Georgia, serif;
+    letter-spacing: -0.025em;
+    text-align: center;
+    text-transform: uppercase;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+
+  .mobile-paper-card.focused .mobile-paper-section {
+    padding: 10px 0 8px;
+    border-top: 1px solid rgba(74, 62, 43, 0.26);
+    font: 600 clamp(13px, 3.8vw, 18px)/1.18 "Instrument Serif", "Newsreader", Georgia, serif;
+    text-align: center;
+  }
+
+  .mobile-paper-card.focused .mobile-paper-body {
+    display: block;
+    min-height: 0;
+    margin-top: clamp(8px, 1.6dvh, 15px);
+    overflow: hidden;
+    font: 400 clamp(13px, 3.65vw, 18px)/1.43 "Newsreader", "EB Garamond", Georgia, serif;
+  }
+
+  .mobile-paper-card.focused .mobile-paper-number {
+    font-size: 10px;
+  }
+
+  .mobile-focus-nav {
+    position: absolute;
+    right: 0;
+    bottom: max(24px, calc(env(safe-area-inset-bottom) + 3dvh));
+    left: 0;
+    z-index: 35;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(28px, 12vw, 64px);
+  }
+
+  .mobile-focus-nav button {
+    display: grid;
+    place-items: center;
+    width: clamp(64px, 20vw, 96px);
+    aspect-ratio: 1.45;
+    padding: 0;
+    border: 0;
+    border-radius: 4px;
+    background: #f5ead2;
+    color: #405b32;
+    box-shadow: 0 6px 14px rgba(25, 39, 19, 0.28);
+    font: 400 clamp(34px, 10vw, 50px)/1 "Newsreader", Georgia, serif;
+    cursor: pointer;
+    touch-action: manipulation;
+  }
+
+  .mobile-focus-nav button:disabled {
+    cursor: default;
+    opacity: 0.28;
+  }
+
+  .mobile-paper-card.focus-out-next {
+    animation: mobile-focus-out-left 360ms cubic-bezier(0.4, 0, 0.2, 1) both;
+  }
+
+  .mobile-paper-card.focus-in-next {
+    animation: mobile-focus-in-right 360ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .mobile-paper-card.focus-out-prev {
+    animation: mobile-focus-out-right 360ms cubic-bezier(0.4, 0, 0.2, 1) both;
+  }
+
+  .mobile-paper-card.focus-in-prev {
+    animation: mobile-focus-in-left 360ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+}
+
+@keyframes mobile-paper-out-left {
+  to { opacity: 0; transform: translate3d(-112vw, 0, 0); }
+}
+
+@keyframes mobile-paper-out-right {
+  to { opacity: 0; transform: translate3d(112vw, 0, 0); }
+}
+
+@keyframes mobile-paper-in-right {
+  from { opacity: 0; transform: translate3d(112vw, 0, 0); }
+}
+
+@keyframes mobile-paper-in-left {
+  from { opacity: 0; transform: translate3d(-112vw, 0, 0); }
+}
+
+@keyframes mobile-focus-backdrop-in {
+  from { opacity: 0; }
+}
+
+@keyframes mobile-focus-out-left {
+  to { opacity: 0; transform: translate3d(-150%, 0, 0); }
+}
+
+@keyframes mobile-focus-in-right {
+  from { opacity: 0; transform: translate3d(65%, 0, 0); }
+}
+
+@keyframes mobile-focus-out-right {
+  to { opacity: 0; transform: translate3d(50%, 0, 0); }
+}
+
+@keyframes mobile-focus-in-left {
+  from { opacity: 0; transform: translate3d(-165%, 0, 0); }
+}
+
+@media (max-width: 760px) and (max-height: 680px) {
+  .mobile-reader {
+    --mobile-paper-width: min(47vw, 25dvh);
+  }
+
+  .mobile-paper-card.upper {
+    top: max(50px, 8dvh);
+  }
+
+  .mobile-paper-card.lower {
+    top: 46dvh;
+  }
+
+  .mobile-reader-title {
+    font-size: clamp(27px, 8.6vw, 42px);
+  }
+
+  .mobile-focus-paper-stage {
+    top: max(72px, calc(env(safe-area-inset-top) + 10dvh));
+  }
+
+  .mobile-paper-card.focused {
+    width: min(78vw, 42dvh);
+  }
+
+  .mobile-paper-story-title {
+    font-size: clamp(20px, 6.4vw, 32px);
+  }
+
+  .mobile-paper-card.focused .mobile-paper-body {
+    font-size: clamp(11px, 3.3vw, 15px);
+  }
+
+  .mobile-focus-nav {
+    bottom: max(12px, env(safe-area-inset-bottom));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mobile-paper-pair .mobile-paper-card,
+  .mobile-paper-card.focused,
+  .mobile-reader-focus {
+    animation-duration: 1ms !important;
   }
 }

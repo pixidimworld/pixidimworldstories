@@ -60,7 +60,9 @@ export function AshenPress({ active = true, className = "", style }: AshenPressP
     return () => document.removeEventListener("visibilitychange", update);
   }, []);
 
-  const mounted = hostVisible && documentVisible;
+  // Once ready, keep the library iframe mounted so tab visibility and reader
+  // transitions pause rendering without rebuilding the scene or replaying the dog.
+  const mounted = hostVisible || ready;
 
   useEffect(() => {
     setReady(false);
@@ -69,16 +71,17 @@ export function AshenPress({ active = true, className = "", style }: AshenPressP
   useEffect(() => {
     if (!mounted || !ready) return;
     frameRef.current?.contentWindow?.postMessage(
-      { type: "ashen-press:set-active", active },
+      { type: "ashen-press:set-active", active: active && documentVisible },
       "*",
     );
-  }, [active, mounted, ready]);
+  }, [active, documentVisible, mounted, ready]);
 
   useEffect(() => {
     const handleAssetRequest = async (event: MessageEvent) => {
       if (event.source !== frameRef.current?.contentWindow) return;
       const data = event.data as { type?: string; id?: string; path?: string } | null;
       const libraryAssets = new Set([
+        "/mobile-library.glb",
         "/library-optimized-60fps.glb",
         "/library-optimized.glb",
         "/library-performance-50.glb",
@@ -146,7 +149,7 @@ export function AshenPress({ active = true, className = "", style }: AshenPressP
       style={{
         position: "relative",
         overflow: "hidden",
-        background: "#dff1d8",
+        background: "#ffffff",
         pointerEvents: "auto",
         ...style,
       }}
@@ -160,7 +163,7 @@ export function AshenPress({ active = true, className = "", style }: AshenPressP
           loading="eager"
           onLoad={(event) => {
             event.currentTarget.contentWindow?.postMessage(
-              { type: "ashen-press:set-active", active },
+              { type: "ashen-press:set-active", active: active && documentVisible },
               "*",
             );
             setReady(true);
@@ -172,7 +175,7 @@ export function AshenPress({ active = true, className = "", style }: AshenPressP
             width: "100%",
             height: "100%",
             border: 0,
-            background: "#dff1d8",
+            background: "#ffffff",
             opacity: ready ? 1 : 0,
             pointerEvents: ready ? "auto" : "none",
             transition: "opacity 240ms ease-out",
