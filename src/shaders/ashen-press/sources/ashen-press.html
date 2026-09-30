@@ -12,19 +12,6 @@
     --ink-soft:rgba(36,26,18,.6);
     --ease:cubic-bezier(.22,1,.36,1);
     --ticker-bottom-offset:0px;
-    /* Entrance-door layout controls. */
-    --door-art-width-desktop:300.4%;
-    --door-art-height-desktop:102.3%;
-    --door-scale-desktop:1.25;
-    --door-left-x-desktop:-82px;
-    --door-right-x-desktop:82px;
-    --door-y-desktop:0px;
-    --door-art-width-mobile:138.4%;
-    --door-art-height-mobile:105.1%;
-    --door-scale-mobile:1.15;
-    --door-left-x-mobile:-12px;
-    --door-right-x-mobile:12px;
-    --door-y-mobile:0px;
   }
   *{box-sizing:border-box}
   html,body{width:100%;max-width:100%;height:100vh;height:100dvh;overflow:hidden}
@@ -452,9 +439,33 @@
     background: rgba(255,255,255,0.8);
     border-color: rgba(0,0,0,0.5);
   }
+  .help-toggle.attention{animation:help-attention .46s ease-in-out 3}
+  @keyframes help-attention{0%,100%{transform:translateY(0)}48%{transform:translateY(-4px)}}
+  .music-toggle {
+    position: fixed;
+    top: calc(max(16px, env(safe-area-inset-top)) + 40px);
+    right: max(24px, env(safe-area-inset-right));
+    z-index: 20;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border: 1px solid rgba(0,0,0,0.25);
+    background: rgba(255,255,255,0.4);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #000;
+    cursor: pointer;
+    transition: background .2s var(--ease), border-color .2s var(--ease);
+  }
+  .music-toggle:hover {background:rgba(255,255,255,.8);border-color:rgba(0,0,0,.5)}
+  .music-toggle svg{width:16px;height:16px;overflow:visible;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+  .music-toggle .music-muted-line{opacity:0}
+  .music-toggle.is-muted .music-muted-line{opacity:1}
   .help-card {
     position: fixed;
-    top: calc(max(16px, env(safe-area-inset-top)) + 42px);
+    top: calc(max(16px, env(safe-area-inset-top)) + 82px);
     right: max(24px, env(safe-area-inset-right));
     z-index: 20;
     width: min(280px, calc(100vw - 32px - env(safe-area-inset-left) - env(safe-area-inset-right)));
@@ -562,56 +573,12 @@
   .camera-status{min-height:15px;margin:6px 0 0;color:#c9bda9;font-size:10px}
   @media(max-width:767px){.mobile-camera-panel{display:block!important;top:calc(44px + env(safe-area-inset-top));max-height:calc(48vh - 54px);overflow:auto}}
 
-  /* ---------- entrance ---------- */
-  .entrance{position:fixed;inset:0;z-index:100;width:100vw;height:100vh;height:100dvh;
-    overflow:hidden;background:transparent;color:#000;
-    pointer-events:auto}
-  .entrance-intro{position:absolute;inset:0;z-index:2;display:grid;place-items:center;
-    background:#fff;opacity:1;transition:opacity .22s ease}
-  .entrance-copy{width:min(760px,calc(100% - 48px));margin:0;text-align:center;
-    font:500 clamp(15px,1.35vw,19px)/1.55 "Cinzel","EB Garamond",Georgia,serif;
-    letter-spacing:.01em;color:#000}
-  .entrance-doors{position:absolute;inset:0;z-index:1;display:flex;width:100%;height:100%;
-    visibility:hidden;overflow:hidden;background:transparent}
-  .entrance.doors-ready .entrance-intro{opacity:0;pointer-events:none}
-  .entrance.doors-ready .entrance-doors{visibility:visible}
-  .entrance-door{position:relative;flex:0 0 50%;height:100%;overflow:hidden;background:transparent;
-    transform:translateX(0);will-change:transform}
-  .entrance-door picture{position:absolute;inset:0;display:block;transform-origin:center;will-change:transform}
-  .entrance-door.left picture{
-    transform:translate(var(--door-left-x-desktop),var(--door-y-desktop)) scale(var(--door-scale-desktop))}
-  .entrance-door.right picture{
-    transform:translate(var(--door-right-x-desktop),var(--door-y-desktop)) scale(var(--door-scale-desktop))}
-  .entrance-door-art{position:absolute;display:block;max-width:none;
-    width:var(--door-art-width-desktop);height:var(--door-art-height-desktop);left:-33.8%;top:-1.3%;
-    object-fit:fill;user-select:none;-webkit-user-drag:none;pointer-events:none}
-  .entrance-door.right .entrance-door-art{left:auto;right:-33.8%;
-    transform:scaleX(-1)}
-  .entrance-unlock{position:absolute;left:50%;bottom:clamp(54px,11dvh,112px);z-index:3;
-    margin:0;padding:8px 14px;border:0;background:transparent;color:#fff;
-    font:600 clamp(28px,3.4vw,52px)/1.1 "Cinzel","EB Garamond",Georgia,serif;
-    letter-spacing:.01em;white-space:nowrap;text-align:center;text-shadow:0 2px 7px rgba(0,0,0,.45);
-    opacity:0;visibility:hidden;pointer-events:none;transform:translateX(-50%);cursor:pointer}
-  .entrance.awaiting-unlock .entrance-unlock{opacity:1;visibility:visible;pointer-events:auto}
-  .entrance.opening .entrance-door{transition:transform .76s cubic-bezier(.65,0,.35,1)}
-  .entrance.opening .entrance-door.left{transform:translateX(-102%)}
-  .entrance.opening .entrance-door.right{transform:translateX(102%)}
-  @media(max-width:767px){
-    .entrance-copy{width:min(420px,calc(100% - 40px));font-size:clamp(14px,4vw,17px);line-height:1.6}
-    .entrance-door.left picture{
-      transform:translate(var(--door-left-x-mobile),var(--door-y-mobile)) scale(var(--door-scale-mobile))}
-    .entrance-door.right picture{
-      transform:translate(var(--door-right-x-mobile),var(--door-y-mobile)) scale(var(--door-scale-mobile))}
-    .entrance-door-art{width:var(--door-art-width-mobile);height:var(--door-art-height-mobile);left:-17.1%;top:-3.3%;
-      transform:none}
-    .entrance-door.right .entrance-door-art{left:auto;right:-17.1%;
-      transform:scaleX(-1)}
-    .entrance-unlock{bottom:clamp(40px,8dvh,72px);font-size:clamp(21px,7vw,32px)}
-  }
-  @media(prefers-reduced-motion:reduce){
-    .entrance-intro{transition-duration:.08s}
-    .entrance.opening .entrance-door{transition-duration:.18s}
-  }
+  /* ---------- scene loader ---------- */
+  .scene-loader{position:fixed;inset:0;z-index:100;width:100vw;height:100vh;height:100dvh;
+    display:grid;place-items:center;background:#fff;color:#000;pointer-events:none;user-select:none}
+  .scene-loader-spinner{width:clamp(52px,7vw,78px);aspect-ratio:1;border:clamp(2px,.32vw,3px) solid rgba(0,0,0,.16);border-top-color:#000;border-radius:50%;animation:scene-loader-spin .9s linear infinite}
+  @keyframes scene-loader-spin{to{transform:rotate(360deg)}}
+  @media(prefers-reduced-motion:reduce){.scene-loader-spinner{animation:none}}
 </style>
 
 <canvas id="gl"></canvas>
@@ -652,6 +619,13 @@
   <h1 class="brand-title">PIXIDIMWORLD STORIES</h1>
 </header>
 <div id="help-toggle" class="help-toggle" aria-label="Help" role="button" tabindex="0">?</div>
+<button id="music-toggle" class="music-toggle" type="button" aria-label="Mute background music" aria-pressed="false">
+  <svg viewBox="0 0 24 24" aria-hidden="true">
+    <path d="M4 10h4l5-4v12l-5-4H4z"></path>
+    <path d="M16 9.5a4 4 0 0 1 0 5"></path>
+    <path class="music-muted-line" d="M3 3l18 18"></path>
+  </svg>
+</button>
 <div id="help-card" class="help-card" aria-hidden="true">
   <div class="help-content desktop-help">
     <p>Move your mouse around the scene to experience the 3D parallax view.</p>
@@ -680,13 +654,8 @@
     <button class="solid" id="mbar-look">Look inside</button>
   </div>
 </div>
-<div class="entrance" id="entrance" role="status" aria-label="Preparing the library entrance">
-  <div class="entrance-doors" id="entrance-doors" aria-hidden="true">
-    <div class="entrance-door left"><picture><source media="(max-width:767px)" srcset="/mobileentrance-door.png"><img class="entrance-door-art" src="/entrance-door.png" alt=""></picture></div>
-    <div class="entrance-door right"><picture><source media="(max-width:767px)" srcset="/mobileentrance-door.png"><img class="entrance-door-art" src="/entrance-door.png" alt=""></picture></div>
-  </div>
-  <button class="entrance-unlock" id="entrance-unlock" type="button">Click to unlock</button>
-  <div class="entrance-intro"><p class="entrance-copy" aria-label="Need help exploring? Click the ? icon at the top-right once you enter to learn how to navigate this library."><span id="entrance-type" aria-hidden="true"></span></p></div>
+<div class="scene-loader" id="scene-loader" role="status" aria-live="polite" aria-label="Loading main scene">
+  <span class="scene-loader-spinner" aria-hidden="true"></span>
 </div>
 
 <script type="importmap">
@@ -762,7 +731,7 @@ const LOW_POWER_DEVICE = REDUCED || MOBILE || DEVICE_MEMORY <= 8 || CPU_THREADS 
 const qualityPixelRatio=()=>Math.min(devicePixelRatio,LOW_POWER_DEVICE?1:MOBILE?1.25:1.5);
 const qualityShadowSize=()=>LOW_POWER_DEVICE?512:MOBILE?512:1024;
 const qualityTargetSamples=()=>LOW_POWER_DEVICE?0:MOBILE?0:4;
-const qualityBlurSamples=()=>LOW_POWER_DEVICE?16:MOBILE?16:30;
+const qualityBlurSamples=()=>LOW_POWER_DEVICE?(MOBILE?12:16):MOBILE?12:30;
 if(REDUCED){ K.introWallFade=260; K.introFade=200;
              K.hoverLift=260; K.hoverDrop=200; K.activeDuration=300;
              K.orbitAz=0; K.orbitEl=0; }
@@ -1978,6 +1947,10 @@ function mobileActiveY(){
   const distance=camera.position.z-activeZ();
   return MOBILE_CAMERA_CONFIG.targetY+distance*Math.tan(camera.fov*Math.PI/360)*0.06;
 }
+function mobileSelectedBookScale(){
+  // Enlarges only the selected mobile volume; authored camera values remain unchanged.
+  return clamp(1.28+(0.68-VW/Math.max(VH,1))*0.34,1.24,1.42);
+}
 function toActive(B){
   S.anim='animatingForward'; hoverIn(B);
   B.tSeat.start([0],K.activeDuration*0.55,easeSettle,K.activeDuration*0.12);
@@ -2477,6 +2450,7 @@ function postReaderBook(type,cur){
   },'*');
 }
 function reportAudioInteraction(kind='control'){
+  try{window.parent.__pixidimUnlockSiteAudio?.();}catch(error){}
   window.parent.postMessage({type:'ashen-press:audio-interaction',kind},'*');
 }
 function showDetail(B){
@@ -2524,6 +2498,9 @@ const MOBILE_GESTURE={on:false,pointerId:null,startX:0,startY:0,lastX:0,lastTime
 function dragReset(){DRAG.on=false;DRAG.moved=0;DRAG.rx=0;DRAG.ry=0;}
 addEventListener('pointermove',e=>{
   if(e.target.closest?.('.camera-panel')){ORB.tx=0;ORB.ty=0;return;}
+  // Mobile selection is resolved on pointerdown. Avoid per-move scene work unless a drag is active.
+  if(MOBILE&&!S.active&&!MOBILE_GESTURE.on)return;
+  if(MOBILE&&S.active&&!DRAG.on)return;
   ORB.tx=clamp((e.clientX/VW-0.5)*2,-1,1); ORB.ty=clamp((e.clientY/VH-0.5)*2,-1,1);
   hintEl.style.transform=`translate(${e.clientX+12}px,${e.clientY+12}px)`;
   if(MOBILE&&MOBILE_GESTURE.on&&!S.active){
@@ -2541,22 +2518,22 @@ addEventListener('pointermove',e=>{
     MOBILE_GESTURE.lastX=e.clientX;MOBILE_GESTURE.lastTime=now;
     e.preventDefault();return;
   }
+  if(S.active&&DRAG.on){
+    const dx=e.clientX-DRAG.lx, dy=e.clientY-DRAG.ly;
+    DRAG.lx=e.clientX; DRAG.ly=e.clientY;
+    DRAG.moved+=Math.abs(dx)+Math.abs(dy);
+    DRAG.ry+=dx*0.0090;
+    DRAG.rx=clamp(DRAG.rx+dy*0.0062,-0.62,0.62);
+    S.active.sWob.start([DRAG.rx,DRAG.ry,0]);
+    document.body.style.cursor='grabbing';
+    return;
+  }
   if(S.anim==='intro'||(MOBILE&&!S.active))return;
   ptr.x=(e.clientX/VW)*2-1; ptr.y=-(e.clientY/VH)*2+1;
   ray.setFromCamera(ptr,camera);
   const hits=ray.intersectObjects(bookHits,false);
   const B=hits.length?hits[0].object.userData.book:null;
   if(S.active){
-    if(DRAG.on){                                   // turning the volume in the hand
-      const dx=e.clientX-DRAG.lx, dy=e.clientY-DRAG.ly;
-      DRAG.lx=e.clientX; DRAG.ly=e.clientY;
-      DRAG.moved+=Math.abs(dx)+Math.abs(dy);
-      DRAG.ry+=dx*0.0090;
-      DRAG.rx=clamp(DRAG.rx+dy*0.0062,-0.62,0.62);
-      S.active.sWob.start([DRAG.rx,DRAG.ry,0]);
-      document.body.style.cursor='grabbing';
-      return;
-    }
     if(B===S.active&&S.anim==='active'){
       if(!REDUCED&&hits[0].uv){                    // a light parallax when the hand is off
         const uv=hits[0].uv;
@@ -2583,6 +2560,7 @@ addEventListener('pointerdown',e=>{
   if((e.target.closest('header')&&!e.target.closest('.brand-header'))||e.target.closest('footer')||
      e.target.closest('.detail')||e.target.closest('.mbar')||e.target.closest('.menu')||
      e.target.closest('.camera-panel'))return;
+  try{window.parent.__pixidimUnlockSiteAudio?.();}catch(error){}
   ptr.x=(e.clientX/VW)*2-1; ptr.y=-(e.clientY/VH)*2+1;
   ray.setFromCamera(ptr,camera);
   if(MOBILE&&!S.active){
@@ -2814,13 +2792,20 @@ addEventListener('message',e=>{
 });
 addEventListener('visibilitychange',()=>{
   pageVisible=!document.hidden;
-  if(pageVisible){backgroundDirty=true;wakeRender();}
+  // Never feed time spent in another app back into the scene as one giant frame.
+  last=performance.now();
+  if(!pageVisible){
+    if(MOBILE)MOBILE_PAN.velocity=0;
+    return;
+  }
+  backgroundDirty=true;
+  wakeRender();
 });
 function tick(now){
   sceneRenderFrame=0;
   if(!sceneRenderActive||!pageVisible){last=now;return;}
   NOW=now;
-  const motionDt=Math.min(Math.max((now-last)/1000,0),0.5);
+  const motionDt=Math.min(Math.max((now-last)/1000,0),MOBILE?0.05:0.5);
   const dt=Math.min(motionDt,0.05);
   last=now;
 
@@ -2830,7 +2815,7 @@ function tick(now){
       MOBILE_PAN.velocity*=Math.exp(-7.5*motionDt);
       if(MOBILE_PAN.target===MOBILE_CAMERA_CONFIG.minPanX||MOBILE_PAN.target===MOBILE_CAMERA_CONFIG.maxPanX)MOBILE_PAN.velocity=0;
     }
-    MOBILE_PAN.x+=(MOBILE_PAN.target-MOBILE_PAN.x)*(1-Math.exp(-14*motionDt));
+    MOBILE_PAN.x+=(MOBILE_PAN.target-MOBILE_PAN.x)*(1-Math.exp(-26*motionDt));
   }
   if(DEV_CAMERA_PANEL&&MOBILE){
     canvas.dataset.mobilePan=MOBILE_PAN.x.toFixed(4);
@@ -2844,7 +2829,7 @@ function tick(now){
     const tg=WASH.target, k2=Math.min(1,dt*(tg>WASH.t?5.2:8.5));
     if(Math.abs(tg-WASH.t)>0.0009||WASH.dirty){ WASH.t+=(tg-WASH.t)*k2; WASH.dirty=false; drawWash(); }
   }
-  const dampRate=(S.anim==='intro')?1:(1-Math.exp(-5.5*motionDt));
+  const dampRate=(S.anim==='intro')?1:(1-Math.exp(-(MOBILE?15:5.5)*motionDt));
   ORB.x+=(ORB.tx-ORB.x)*dampRate; ORB.y+=(ORB.ty-ORB.y)*dampRate;
   applyCamera();
   const cameraMoved=camera.position.distanceToSquared(lastBackgroundCameraPosition)>1e-10||
@@ -2898,7 +2883,7 @@ function tick(now){
     B.gWob.rotation.set(B.sWob.v[0],B.sWob.v[1],B.sWob.v[2]);
     B.gRoot.position.set(B.tActiveP.v[0],B.tActiveP.v[1],B.tActiveP.v[2]);
     B.gRoot.rotation.set(B.tActiveR.v[0],B.tActiveR.v[1],B.tActiveR.v[2]);
-    B.gScl.scale.setScalar(B.tScale.v[0]);
+    B.gScl.scale.setScalar(B.tScale.v[0]*(MOBILE&&B===S.active?mobileSelectedBookScale():1));
     const op=B.tFade.v[0]*wf;
     B.clothMat.opacity=op; B.spineMat.uniforms.uOpacity.value=op;
     B.pages.uniforms.uOpacity.value=op;
@@ -2966,7 +2951,7 @@ for(const type of ['pointermove','pointerdown','pointerup','pointercancel','whee
 }
 
 /* ---- boot ---- */
-const helpToggle=document.getElementById('help-toggle'), helpCard=document.getElementById('help-card');
+const helpToggle=document.getElementById('help-toggle'), helpCard=document.getElementById('help-card'), musicToggle=document.getElementById('music-toggle');
 if(helpToggle && helpCard){
   const stopP = e => e.stopPropagation();
   helpToggle.addEventListener('pointerdown', stopP);
@@ -2985,51 +2970,43 @@ if(helpToggle && helpCard){
     if(!helpCard.contains(e.target) && !helpToggle.contains(e.target)) helpCard.classList.remove('open');
   });
 }
+if(musicToggle){
+  const stopMusicEvent=e=>e.stopPropagation();
+  musicToggle.addEventListener('pointerdown',stopMusicEvent);
+  musicToggle.addEventListener('touchstart',stopMusicEvent,{passive:true});
+  musicToggle.addEventListener('click',e=>{
+    stopMusicEvent(e);
+    try{
+      if(window.parent.__pixidimToggleMusic){window.parent.__pixidimToggleMusic();return;}
+    }catch(error){}
+    window.parent.postMessage({type:'ashen-press:music-toggle'},'*');
+  });
+}
+addEventListener('message',e=>{
+  if(e.data?.type!=='ashen-press:set-music-muted'||!musicToggle)return;
+  const muted=e.data.muted===true;
+  musicToggle.classList.toggle('is-muted',muted);
+  musicToggle.setAttribute('aria-pressed',String(muted));
+  musicToggle.setAttribute('aria-label',muted?'Resume background music':'Mute background music');
+});
 
-const entrance=document.getElementById('entrance'), entranceDoors=document.getElementById('entrance-doors'),
-      entranceIntro=entrance.querySelector('.entrance-intro'),
-      entranceType=document.getElementById('entrance-type'),entranceUnlock=document.getElementById('entrance-unlock'),
+const sceneLoader=document.getElementById('scene-loader'),
       ticker=document.querySelector('footer.ticker');
 document.addEventListener('pointerdown',event=>{
   const target=event.target instanceof Element?event.target:null;
   const control=target?.closest('button,a[href],[role="button"],input,select,textarea,[data-audio-interactive]');
-  if(!control||control.matches(':disabled,[aria-disabled="true"]')||entrance.contains(control))return;
+  if(!control||control.matches(':disabled,[aria-disabled="true"]'))return;
   reportAudioInteraction();
 },true);
 const READINESS={
   status:'loading',environment:false,fonts:null,plates:null,books:0,bookBacks:null,floorTextHeaders:0,controls:true,ticker:true,
   textures:0,shaderCompile:false,warmFrame:false,warmDraw:null,errors:[]
 };
-const frame=()=>new Promise(r=>{let done=false;const go=()=>{if(!done){done=true;r();}};
-  requestAnimationFrame(go);setTimeout(go,34);});
-const wait=ms=>new Promise(resolve=>setTimeout(resolve,ms));
+const frame=()=>new Promise(resolve=>requestAnimationFrame(resolve));
 const waitUntil=test=>new Promise(resolve=>{
   const check=()=>test()?resolve():requestAnimationFrame(check);
   check();
 });
-const waitForUnlock=()=>new Promise(resolve=>{
-  let resolved=false;
-  const unlock=event=>{
-    if(resolved)return;
-    if(event.type==='click'&&event.detail!==0)return;
-    resolved=true;
-    entranceUnlock.removeEventListener('pointerdown',unlock);
-    entranceUnlock.removeEventListener('click',unlock);
-    reportAudioInteraction('unlock');
-    resolve(event);
-  };
-  entranceUnlock.addEventListener('pointerdown',unlock,{once:true});
-  entranceUnlock.addEventListener('click',unlock);
-});
-const INTRO_TEXT='Need help exploring? Click the ? icon at the top-right once you enter to learn how to navigate this library.';
-const introTyping=(async()=>{
-  const started=performance.now(),characterDelay=38;
-  while(entranceType.textContent.length<INTRO_TEXT.length){
-    const characterCount=Math.min(INTRO_TEXT.length,Math.floor((performance.now()-started)/characterDelay)+1);
-    entranceType.textContent=INTRO_TEXT.slice(0,characterCount);
-    await wait(38);
-  }
-})();
 
 async function prepareFonts(){
   const faces=['Inter','Cinzel','EB Garamond','Newsreader'];
@@ -3117,31 +3094,21 @@ async function revealPreparedLibrary(){
   revealChrome();
   startIntro();
   await Promise.all([
-    introTyping,
     waitUntil(()=>parseFloat(getComputedStyle(canvas).opacity)>=0.999),
     waitUntil(()=>entranceBounce.settled&&wallFade.d<=0&&wallFade.v[0]>=0.999)
   ]);
-  entranceDoors.setAttribute('aria-hidden','false');
-  entrance.classList.add('doors-ready');
-  await waitUntil(()=>parseFloat(getComputedStyle(entranceIntro).opacity)<=0.001);
-  entrance.classList.add('awaiting-unlock');
-  await waitForUnlock();
-  entrance.classList.remove('awaiting-unlock');
-  entranceUnlock.setAttribute('aria-hidden','true');
-  entrance.classList.add('opening');
-  await waitUntil(()=>{
-    const left=entranceDoors.querySelector('.entrance-door.left').getBoundingClientRect();
-    const right=entranceDoors.querySelector('.entrance-door.right').getBoundingClientRect();
-    return left.right<=1&&right.left>=innerWidth-1;
-  });
-  entrance.remove();
+  sceneLoader?.remove();
+  requestAnimationFrame(()=>helpToggle?.classList.add('attention'));
 }
 (async function boot(){
+  // Independent critical assets prepare together behind the entrance overlay.
   const fontsPromise=prepareFonts();
-  READINESS.environment=await loadEnvironment();
-  READINESS.fonts=await fontsPromise;
+  const environmentPromise=loadEnvironment();
+  const platesPromise=loadPlates();
+  READINESS.environment=await environmentPromise;
   READINESS.floorTextHeaders=createFloorTextHeaders();
-  READINESS.plates=await loadPlates();
+  READINESS.fonts=await fontsPromise;
+  READINESS.plates=await platesPromise;
   if(!document.hidden) await frame();
   for(let i=0;i<DISPLAY_BOOKS.length;i++){
     books.push(buildBook(DISPLAY_BOOKS[i],i));

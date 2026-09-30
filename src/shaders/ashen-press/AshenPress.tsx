@@ -32,9 +32,19 @@ export type AshenPressProps = {
   active?: boolean;
   className?: string;
   style?: CSSProperties;
+  musicMuted?: boolean;
+  onSceneReady?: () => void;
+  onMusicToggle?: () => void;
 };
 
-export function AshenPress({ active = true, className = "", style }: AshenPressProps) {
+export function AshenPress({
+  active = true,
+  className = "",
+  style,
+  musicMuted = false,
+  onSceneReady,
+  onMusicToggle,
+}: AshenPressProps) {
   const hostRef = useRef<HTMLDivElement>(null);
   const frameRef = useRef<HTMLIFrameElement>(null);
   const [documentVisible, setDocumentVisible] = useState(() => (
@@ -80,6 +90,14 @@ export function AshenPress({ active = true, className = "", style }: AshenPressP
     const handleAssetRequest = async (event: MessageEvent) => {
       if (event.source !== frameRef.current?.contentWindow) return;
       const data = event.data as { type?: string; id?: string; path?: string } | null;
+      if (data?.type === "ashen-press:scene-ready") {
+        onSceneReady?.();
+        return;
+      }
+      if (data?.type === "ashen-press:music-toggle") {
+        onMusicToggle?.();
+        return;
+      }
       const libraryAssets = new Set([
         "/mobile-library.glb",
         "/library-optimized-60fps.glb",
@@ -137,7 +155,15 @@ export function AshenPress({ active = true, className = "", style }: AshenPressP
     };
     window.addEventListener("message", handleAssetRequest);
     return () => window.removeEventListener("message", handleAssetRequest);
-  }, []);
+  }, [onMusicToggle, onSceneReady]);
+
+  useEffect(() => {
+    if (!mounted || !ready) return;
+    frameRef.current?.contentWindow?.postMessage(
+      { type: "ashen-press:set-music-muted", muted: musicMuted },
+      "*",
+    );
+  }, [mounted, musicMuted, ready]);
 
   return (
     <div
@@ -164,6 +190,10 @@ export function AshenPress({ active = true, className = "", style }: AshenPressP
           onLoad={(event) => {
             event.currentTarget.contentWindow?.postMessage(
               { type: "ashen-press:set-active", active: active && documentVisible },
+              "*",
+            );
+            event.currentTarget.contentWindow?.postMessage(
+              { type: "ashen-press:set-music-muted", muted: musicMuted },
               "*",
             );
             setReady(true);

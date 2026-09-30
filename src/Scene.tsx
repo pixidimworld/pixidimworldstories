@@ -72,6 +72,8 @@ export function Scene() {
   const [readerPrepared, setReaderPrepared] = useState(false);
   const [readerShown, setReaderShown] = useState(false);
   const [readerLoading, setReaderLoading] = useState(false);
+  const [sceneReady, setSceneReady] = useState(false);
+  const [musicMuted, setMusicMuted] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [isPageTurning, setIsPageTurning] = useState(false);
   const [zoomLevel, setZoomLevel] = useState(1);
@@ -95,14 +97,24 @@ export function Scene() {
   const readerSpreadsRef = useRef<Array<{ url: string }>>([]);
   const backgroundMusicRef = useRef<HTMLAudioElement | null>(null);
   const clickSoundRef = useRef<HTMLAudioElement | null>(null);
+  const audioUnlockedRef = useRef(false);
   const musicStartedRef = useRef(false);
-  const musicNeedsInteractionRef = useRef(false);
-  const audioScopeRef = useRef<"library" | "reader">("library");
+  const manualMusicMutedRef = useRef(false);
+  const musicPausedForReadingRef = useRef(false);
+  const savedMusicTimeRef = useRef(0);
+  const readingModeRef = useRef(false);
+  const audioUnlockingRef = useRef(false);
+  const restartAfterBackgroundRef = useRef(false);
+  const restartIssuedRef = useRef(false);
   const mobileReaderTimerRef = useRef<number | null>(null);
-
   const pauseMainAudioForReader = () => {
-    audioScopeRef.current = "reader";
-    backgroundMusicRef.current?.pause();
+    readingModeRef.current = true;
+    musicPausedForReadingRef.current = true;
+    const backgroundMusic = backgroundMusicRef.current;
+    if (backgroundMusic) {
+      savedMusicTimeRef.current = backgroundMusic.currentTime || 0;
+      backgroundMusic.pause();
+    }
     const clickSound = clickSoundRef.current;
     if (clickSound) {
       clickSound.pause();
@@ -111,56 +123,79 @@ export function Scene() {
   };
 
   const resumeMainAudioForLibrary = () => {
-    audioScopeRef.current = "library";
-    if (!musicStartedRef.current) return;
-    if (document.hidden) {
-      musicNeedsInteractionRef.current = true;
-      return;
-    }
+    readingModeRef.current = false;
     const backgroundMusic = backgroundMusicRef.current;
-    if (!backgroundMusic || !backgroundMusic.paused) return;
-    musicNeedsInteractionRef.current = false;
+    if (manualMusicMutedRef.current || !backgroundMusic || !musicStartedRef.current || document.hidden) return;
+    backgroundMusic.currentTime = savedMusicTimeRef.current;
+    musicPausedForReadingRef.current = false;
     void backgroundMusic.play().catch(() => {
-      musicNeedsInteractionRef.current = true;
+      audioUnlockedRef.current = false;
+      musicPausedForReadingRef.current = true;
     });
   };
 
+  const toggleMusic = useCallback(() => {
+    const backgroundMusic = backgroundMusicRef.current;
+    const nextMuted = !manualMusicMutedRef.current;
+    manualMusicMutedRef.current = nextMuted;
+    setMusicMuted(nextMuted);
+    if (!backgroundMusic) return;
+    if (nextMuted) {
+      savedMusicTimeRef.current = backgroundMusic.currentTime || 0;
+      backgroundMusic.pause();
+      return;
+    }
+    if (readingModeRef.current || document.hidden) return;
+    backgroundMusic.currentTime = savedMusicTimeRef.current;
+    void backgroundMusic.play().then(() => {
+      audioUnlockedRef.current = true;
+      musicStartedRef.current = true;
+      musicPausedForReadingRef.current = false;
+    }).catch(() => {
+      audioUnlockedRef.current = false;
+    });
+  }, []);
+
+  const handleSceneReady = useCallback(() => {
+    setSceneReady(true);
+  }, []);
   useEffect(() => {
     const backgroundMusic = new Audio(backgroundMusicUrl);
     const clickSound = new Audio(clickSoundUrl);
     backgroundMusic.loop = true;
     backgroundMusic.preload = "auto";
     clickSound.preload = "auto";
+    backgroundMusic.load();
     clickSound.load();
     backgroundMusicRef.current = backgroundMusic;
     clickSoundRef.current = clickSound;
 
-    const playBackgroundMusic = () => {
-      if (audioScopeRef.current !== "library" || document.hidden) {
-        musicNeedsInteractionRef.current = true;
-        return;
-      }
-      musicNeedsInteractionRef.current = false;
-      void backgroundMusic.play().catch(() => {
-        musicNeedsInteractionRef.current = true;
+    const unlockSiteAudio = () => {
+      if (manualMusicMutedRef.current || readingModeRef.current || document.hidden || audioUnlockingRef.current || (!backgroundMusic.paused && audioUnlockedRef.current)) return;
+      audioUnlockingRef.current = true;
+      void backgroundMusic.play().then(() => {
+        audioUnlockedRef.current = true;
+        musicStartedRef.current = true;
+        musicPausedForReadingRef.current = false;
+      }).catch(() => {
+        audioUnlockedRef.current = false;
+        musicStartedRef.current = false;
+      }).finally(() => {
+        audioUnlockingRef.current = false;
       });
     };
 
     const playClickSound = () => {
+      if (readingModeRef.current) return;
       clickSound.pause();
       clickSound.currentTime = 0;
       void clickSound.play().catch(() => {});
     };
 
-    const handleValidInteraction = (kind: string) => {
-      if (audioScopeRef.current !== "library") return;
-      playClickSound();
-      if (kind === "unlock" && !musicStartedRef.current) {
-        musicStartedRef.current = true;
-        playBackgroundMusic();
-      } else if (musicStartedRef.current && musicNeedsInteractionRef.current) {
-        playBackgroundMusic();
-      }
+    const handleValidInteraction = (interactive: boolean) => {
+      if (readingModeRef.current) return;
+      unlockSiteAudio();
+      if (interactive) playClickSound();
     };
 
     const handleDocumentPointerDown = (event: PointerEvent) => {
@@ -168,42 +203,63 @@ export function Scene() {
       const control = target?.closest<HTMLElement>(
         "button, a[href], [role='button'], input, select, textarea, [data-audio-interactive]",
       );
-      if (!control || control.matches(":disabled, [aria-disabled='true']")) return;
-      handleValidInteraction("control");
+      handleValidInteraction(!!control && !control.matches(":disabled, [aria-disabled='true']"));
     };
 
     const handleMessage = (event: MessageEvent) => {
       if (event.data?.type !== "ashen-press:audio-interaction") return;
-      handleValidInteraction(event.data.kind === "unlock" ? "unlock" : "control");
+      handleValidInteraction(event.data.kind !== "ambient");
     };
 
-    const pauseForInactivity = () => {
-      if (!musicStartedRef.current || backgroundMusic.paused) return;
-      backgroundMusic.pause();
-      musicNeedsInteractionRef.current = true;
+    const bridgeWindow = window as Window & {
+      __pixidimUnlockSiteAudio?: () => void;
+      __pixidimToggleMusic?: () => void;
     };
-
-    const handleVisibility = () => {
-      if (document.hidden) pauseForInactivity();
-    };
-
+    bridgeWindow.__pixidimUnlockSiteAudio = unlockSiteAudio;
+    bridgeWindow.__pixidimToggleMusic = toggleMusic;
     document.addEventListener("pointerdown", handleDocumentPointerDown, true);
-    document.addEventListener("visibilitychange", handleVisibility);
-    window.addEventListener("blur", pauseForInactivity);
     window.addEventListener("message", handleMessage);
 
     return () => {
       document.removeEventListener("pointerdown", handleDocumentPointerDown, true);
-      document.removeEventListener("visibilitychange", handleVisibility);
-      window.removeEventListener("blur", pauseForInactivity);
       window.removeEventListener("message", handleMessage);
+      if (bridgeWindow.__pixidimUnlockSiteAudio === unlockSiteAudio) delete bridgeWindow.__pixidimUnlockSiteAudio;
+      if (bridgeWindow.__pixidimToggleMusic === toggleMusic) delete bridgeWindow.__pixidimToggleMusic;
       backgroundMusic.pause();
       clickSound.pause();
       backgroundMusicRef.current = null;
       clickSoundRef.current = null;
     };
-  }, []);
+  }, [toggleMusic]);
 
+  useEffect(() => {
+    const markBackgrounded = () => {
+      restartAfterBackgroundRef.current = true;
+      backgroundMusicRef.current?.pause();
+      clickSoundRef.current?.pause();
+    };
+    const restartFreshSession = () => {
+      if (document.visibilityState !== "visible" || !restartAfterBackgroundRef.current || restartIssuedRef.current) return;
+      restartIssuedRef.current = true;
+      restartAfterBackgroundRef.current = false;
+      window.location.reload();
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "hidden") markBackgrounded();
+      else restartFreshSession();
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    window.addEventListener("pagehide", markBackgrounded);
+    window.addEventListener("pageshow", restartFreshSession);
+
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      window.removeEventListener("pagehide", markBackgrounded);
+      window.removeEventListener("pageshow", restartFreshSession);
+    };
+  }, []);
   const clearTransitionTimer = () => {
     if (transitionTimerRef.current !== null) {
       window.clearTimeout(transitionTimerRef.current);
@@ -590,8 +646,19 @@ export function Scene() {
           pointerEvents: view === "library" && !isTransitioning ? "auto" : "none",
         }}
       >
-        <AshenPress active={view === "library"} />
+        <AshenPress
+          active={view === "library"}
+          musicMuted={musicMuted}
+          onMusicToggle={toggleMusic}
+          onSceneReady={handleSceneReady}
+        />
       </div>
+
+      {!sceneReady ? (
+        <div className="scene-loading-screen" role="status" aria-live="polite" aria-label="Loading main scene">
+          <span className="scene-loading-spinner" aria-hidden="true" />
+        </div>
+      ) : null}
 
       {readerLoading ? (
         <div className="read-loading-screen" role="status" aria-live="polite" aria-label="Loading reading page">
