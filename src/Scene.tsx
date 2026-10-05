@@ -4,7 +4,6 @@ import { LandingPageFrame } from "./shaders/landing-pages/LandingPageFrame";
 import { getBookSpreads, getReaderSectionCopy, type BookInfo } from "./readerSpreads";
 import "./shaders/threeui.css";
 import backgroundMusicUrl from "../music-bg.mp3?url";
-import clickSoundUrl from "../click.mp3?url";
 
 type MobileReaderPage = ReturnType<typeof getReaderSectionCopy>;
 
@@ -94,9 +93,9 @@ export function Scene() {
   const readerOpenRequestedRef = useRef(false);
   const transitionTimerRef = useRef<number | null>(null);
   const spreadRequestIdRef = useRef(0);
+  const readerPreparationTimerRef = useRef<number | null>(null);
   const readerSpreadsRef = useRef<Array<{ url: string }>>([]);
   const backgroundMusicRef = useRef<HTMLAudioElement | null>(null);
-  const clickSoundRef = useRef<HTMLAudioElement | null>(null);
   const audioUnlockedRef = useRef(false);
   const musicStartedRef = useRef(false);
   const manualMusicMutedRef = useRef(false);
@@ -114,11 +113,6 @@ export function Scene() {
     if (backgroundMusic) {
       savedMusicTimeRef.current = backgroundMusic.currentTime || 0;
       backgroundMusic.pause();
-    }
-    const clickSound = clickSoundRef.current;
-    if (clickSound) {
-      clickSound.pause();
-      clickSound.currentTime = 0;
     }
   };
 
@@ -161,14 +155,10 @@ export function Scene() {
   }, []);
   useEffect(() => {
     const backgroundMusic = new Audio(backgroundMusicUrl);
-    const clickSound = new Audio(clickSoundUrl);
     backgroundMusic.loop = true;
     backgroundMusic.preload = "auto";
-    clickSound.preload = "auto";
     backgroundMusic.load();
-    clickSound.load();
     backgroundMusicRef.current = backgroundMusic;
-    clickSoundRef.current = clickSound;
 
     const unlockSiteAudio = () => {
       if (manualMusicMutedRef.current || readingModeRef.current || document.hidden || audioUnlockingRef.current || (!backgroundMusic.paused && audioUnlockedRef.current)) return;
@@ -185,17 +175,9 @@ export function Scene() {
       });
     };
 
-    const playClickSound = () => {
-      if (readingModeRef.current) return;
-      clickSound.pause();
-      clickSound.currentTime = 0;
-      void clickSound.play().catch(() => {});
-    };
-
-    const handleValidInteraction = (interactive: boolean) => {
+    const handleValidInteraction = (_interactive: boolean) => {
       if (readingModeRef.current) return;
       unlockSiteAudio();
-      if (interactive) playClickSound();
     };
 
     const handleDocumentPointerDown = (event: PointerEvent) => {
@@ -226,9 +208,7 @@ export function Scene() {
       if (bridgeWindow.__pixidimUnlockSiteAudio === unlockSiteAudio) delete bridgeWindow.__pixidimUnlockSiteAudio;
       if (bridgeWindow.__pixidimToggleMusic === toggleMusic) delete bridgeWindow.__pixidimToggleMusic;
       backgroundMusic.pause();
-      clickSound.pause();
       backgroundMusicRef.current = null;
-      clickSoundRef.current = null;
     };
   }, [toggleMusic]);
 
@@ -236,7 +216,6 @@ export function Scene() {
     const markBackgrounded = () => {
       restartAfterBackgroundRef.current = true;
       backgroundMusicRef.current?.pause();
-      clickSoundRef.current?.pause();
     };
     const restartFreshSession = () => {
       if (document.visibilityState !== "visible" || !restartAfterBackgroundRef.current || restartIssuedRef.current) return;
@@ -336,7 +315,20 @@ export function Scene() {
 
   // Catch messages from both the 3D library and the reader sketchbook.
   useEffect(() => {
-    const prepareBook = (book: BookInfo) => {
+    const cancelReaderPreparation = () => {
+      if (readerPreparationTimerRef.current !== null) {
+        window.clearTimeout(readerPreparationTimerRef.current);
+        readerPreparationTimerRef.current = null;
+      }
+    };
+    const scheduleReaderPreparation = () => {
+      cancelReaderPreparation();
+      readerPreparationTimerRef.current = window.setTimeout(() => {
+        readerPreparationTimerRef.current = null;
+        setReaderPrepared(true);
+      }, 900);
+    };
+    const prepareBook = (book: BookInfo, mountReader: boolean) => {
       if (activeBookRef.current?.id !== book.id) {
         spreadRequestIdRef.current += 1;
         readerReadyRef.current = false;
@@ -349,14 +341,16 @@ export function Scene() {
       }
       activeBookRef.current = book;
       setActiveBook(book);
-      setReaderPrepared(true);
+      if (mountReader) setReaderPrepared(true);
     };
 
     const handleMessage = (event: MessageEvent) => {
       if (event.data?.type === "ashen-press:prepare-reader" && event.data.book) {
-        prepareBook(event.data.book as BookInfo);
+        prepareBook(event.data.book as BookInfo, false);
+        scheduleReaderPreparation();
       } else if (event.data?.type === "ashen-press:open-reader" && event.data.book) {
-        prepareBook(event.data.book as BookInfo);
+        cancelReaderPreparation();
+        prepareBook(event.data.book as BookInfo, true);
         triggerOpenTransition();
       } else if (event.data?.type === "ashen-press:reader-page") {
         setCurrentSpreadIndex(typeof event.data.pageIndex === "number" ? event.data.pageIndex : 0);
@@ -365,12 +359,16 @@ export function Scene() {
       }
     };
     window.addEventListener("message", handleMessage);
-    return () => window.removeEventListener("message", handleMessage);
+    return () => {
+      cancelReaderPreparation();
+      window.removeEventListener("message", handleMessage);
+    };
   }, []);
 
   useEffect(() => () => {
     clearTransitionTimer();
     if (mobileReaderTimerRef.current !== null) window.clearTimeout(mobileReaderTimerRef.current);
+    if (readerPreparationTimerRef.current !== null) window.clearTimeout(readerPreparationTimerRef.current);
     spreadRequestIdRef.current += 1;
     revokeReaderSpreads();
   }, []);

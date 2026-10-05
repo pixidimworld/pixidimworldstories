@@ -6,10 +6,10 @@ const ashenPressBaseDocument = ashenPressSource.replace(
   "__ASHEN_DEV__",
   import.meta.env.DEV ? "true" : "false",
 );
-const middlemanBackUrl = new URL('../../../books/the middle man(back).png', import.meta.url).href;
-const middlemanFrontUrl = new URL('../../../books/the middle man(front).png', import.meta.url).href;
-const dreamersBackUrl = new URL('../../../books/dreamers(back).png', import.meta.url).href;
-const dreamersFrontUrl = new URL('../../../books/dreamers(front).png', import.meta.url).href;
+const middlemanBackUrl = new URL('../../../books/the middle man(back).webp', import.meta.url).href;
+const middlemanFrontUrl = new URL('../../../books/the middle man(front).webp', import.meta.url).href;
+const dreamersBackUrl = new URL('../../../books/dreamers(back).webp', import.meta.url).href;
+const dreamersFrontUrl = new URL('../../../books/dreamers(front).webp', import.meta.url).href;
 const forFriendsFrontUrl = new URL('../../../books/FOUR FRIENDS(FRONT).jpg', import.meta.url).href;
 const robinChekaFrontUrl = new URL('../../../books/ROBIN CHECKER(FRONT).jpg', import.meta.url).href;
 const stalkWithMenFrontUrl = new URL('../../../books/STUCK WITH MEN(FRONT).jpg', import.meta.url).href;
