@@ -2,6 +2,8 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import { AshenPress } from "./shaders/ashen-press/AshenPress";
 import { LandingPageFrame } from "./shaders/landing-pages/LandingPageFrame";
 import { getBookSpreads, getReaderSectionCopy, type BookInfo } from "./readerSpreads";
+import DesktopReaderCatalog from "./DesktopReaderCatalog";
+import MobileReaderCatalog from "./MobileReaderCatalog";
 import "./shaders/threeui.css";
 import backgroundMusicUrl from "../music-bg.mp3?url";
 
@@ -154,13 +156,21 @@ export function Scene() {
     setSceneReady(true);
   }, []);
   useEffect(() => {
-    const backgroundMusic = new Audio(backgroundMusicUrl);
-    backgroundMusic.loop = true;
-    backgroundMusic.preload = "auto";
-    backgroundMusic.load();
-    backgroundMusicRef.current = backgroundMusic;
+    const deferMobileMusic = window.matchMedia("(max-width: 768px)").matches;
+    const ensureBackgroundMusic = () => {
+      if (backgroundMusicRef.current) return backgroundMusicRef.current;
+      const backgroundMusic = new Audio(backgroundMusicUrl);
+      backgroundMusic.loop = true;
+      backgroundMusic.preload = deferMobileMusic ? "none" : "auto";
+      if (!deferMobileMusic) backgroundMusic.load();
+      backgroundMusicRef.current = backgroundMusic;
+      return backgroundMusic;
+    };
+
+    if (!deferMobileMusic) ensureBackgroundMusic();
 
     const unlockSiteAudio = () => {
+      const backgroundMusic = ensureBackgroundMusic();
       if (manualMusicMutedRef.current || readingModeRef.current || document.hidden || audioUnlockingRef.current || (!backgroundMusic.paused && audioUnlockedRef.current)) return;
       audioUnlockingRef.current = true;
       void backgroundMusic.play().then(() => {
@@ -207,7 +217,7 @@ export function Scene() {
       window.removeEventListener("message", handleMessage);
       if (bridgeWindow.__pixidimUnlockSiteAudio === unlockSiteAudio) delete bridgeWindow.__pixidimUnlockSiteAudio;
       if (bridgeWindow.__pixidimToggleMusic === toggleMusic) delete bridgeWindow.__pixidimToggleMusic;
-      backgroundMusic.pause();
+      backgroundMusicRef.current?.pause();
       backgroundMusicRef.current = null;
     };
   }, [toggleMusic]);
@@ -389,6 +399,15 @@ export function Scene() {
     });
   };
 
+  const handleDesktopBookSelect = useCallback((book: BookInfo) => {
+    spreadRequestIdRef.current += 1;
+    activeBookRef.current = book;
+    setActiveBook(book);
+    setCurrentSpreadIndex(0);
+    setTotalSpreads(2);
+    setIsPageTurning(false);
+  }, []);
+
   // Inject the chosen book's dual-page spreads into the existing flip engine.
   const applyBookToSketchbook = useCallback((frame: HTMLIFrameElement) => {
     const updateContent = async () => {
@@ -499,12 +518,16 @@ export function Scene() {
           doc.head.appendChild(themeStyle);
         }
 
-        const spreads = await getBookSpreads(currentBook);
+        const generatedSpreads = await getBookSpreads(currentBook);
         if (requestId !== spreadRequestIdRef.current || !frame.isConnected) {
-          for (const spread of spreads) {
+          for (const spread of generatedSpreads) {
             if (spread.url.startsWith("blob:")) URL.revokeObjectURL(spread.url);
           }
           return;
+        }
+        const spreads = generatedSpreads.slice(0, 2);
+        for (const spread of generatedSpreads.slice(2)) {
+          if (spread.url.startsWith("blob:")) URL.revokeObjectURL(spread.url);
         }
         setTotalSpreads(spreads.length);
 
@@ -678,6 +701,17 @@ export function Scene() {
           {/* Background dots asset with 85% opacity */}
           <div className="reading-page-bg" />
 
+          <DesktopReaderCatalog
+            initialBook={activeBook}
+            onReturn={handleReturnToLibrary}
+            onSelectBook={handleDesktopBookSelect}
+          />
+
+          <MobileReaderCatalog
+            initialBook={activeBook}
+            onReturn={handleReturnToLibrary}
+          />
+
           <div className="reading-layout">
             <section className="reading-book-stage" aria-label="Open story book">
               <header className="reading-page-header">
@@ -728,6 +762,11 @@ export function Scene() {
               >
                 NEXT
               </button>
+
+              <footer className="desktop-flip-meta">
+                <h1>{activeBook?.title || "The Great Climber"}</h1>
+                <p>A story by Donald</p>
+              </footer>
             </section>
 
             <aside className="reading-content-panel" aria-label="Current story section">

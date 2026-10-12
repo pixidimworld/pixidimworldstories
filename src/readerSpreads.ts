@@ -163,8 +163,12 @@ function createEditorialSpread(
   const ctx = canvas.getContext("2d");
   if (!ctx) return Promise.resolve("");
 
-  // Pristine white archival paper background
-  ctx.fillStyle = "#ffffff";
+  // Reuse the warm paper palette from the main library's detail card.
+  const paperGradient = ctx.createLinearGradient(0, 0, W, H);
+  paperGradient.addColorStop(0, "#f8f2e7");
+  paperGradient.addColorStop(0.52, "#f4ebe0");
+  paperGradient.addColorStop(1, "#ece1cf");
+  ctx.fillStyle = paperGradient;
   ctx.fillRect(0, 0, W, H);
 
   // Subtle paper texture grain
@@ -223,8 +227,8 @@ function createEditorialSpread(
     maxW: number,
     lineH: number
   ): number => {
-    ctx.font = "400 29px 'Newsreader', 'EB Garamond', Georgia, serif";
-    ctx.fillStyle = "#334155";
+    ctx.font = "600 30px 'Newsreader', 'EB Garamond', Georgia, serif";
+    ctx.fillStyle = "#2f271f";
     ctx.textAlign = "left";
     const words = text.split(" ");
     let line = "";
@@ -249,21 +253,21 @@ function createEditorialSpread(
   const pageTextWidth = W * 0.5 - 245;
 
   // Chapter Header
-  ctx.fillStyle = "#64748b";
+  ctx.fillStyle = "#806c55";
   ctx.font = "600 15px 'Inter', system-ui, sans-serif";
   ctx.textAlign = "center";
   ctx.fillText(left.chapter.toUpperCase(), leftCenterX, 155);
 
   // Chapter Heading
-  ctx.fillStyle = "#1e293b";
-  ctx.font = "400 42px 'Instrument Serif', 'Playfair Display', Georgia, serif";
+  ctx.fillStyle = "#241a12";
+  ctx.font = "600 42px 'Instrument Serif', 'Playfair Display', Georgia, serif";
   ctx.textAlign = "center";
   ctx.fillText(left.heading, leftCenterX, 218);
 
   // Left Paragraphs
   let currentY = 292;
   for (const para of left.paragraphs) {
-    currentY = drawParagraph(para, leftMarginX, currentY, pageTextWidth, 42) + 20;
+    currentY = drawParagraph(para, leftMarginX, currentY, pageTextWidth, 46) + 28;
   }
 
   // Left Page Number
@@ -277,21 +281,21 @@ function createEditorialSpread(
   const rightMarginX = W * 0.5 + 110;
 
   // Chapter Header
-  ctx.fillStyle = "#64748b";
+  ctx.fillStyle = "#806c55";
   ctx.font = "600 15px 'Inter', system-ui, sans-serif";
   ctx.textAlign = "center";
   ctx.fillText(right.chapter.toUpperCase(), rightCenterX, 155);
 
   // Chapter Heading
-  ctx.fillStyle = "#1e293b";
-  ctx.font = "400 42px 'Instrument Serif', 'Playfair Display', Georgia, serif";
+  ctx.fillStyle = "#241a12";
+  ctx.font = "600 42px 'Instrument Serif', 'Playfair Display', Georgia, serif";
   ctx.textAlign = "center";
   ctx.fillText(right.heading, rightCenterX, 218);
 
   // Right Paragraphs
   currentY = 292;
   for (const para of right.paragraphs) {
-    currentY = drawParagraph(para, rightMarginX, currentY, pageTextWidth, 42) + 20;
+    currentY = drawParagraph(para, rightMarginX, currentY, pageTextWidth, 46) + 28;
   }
 
   // Right Page Number

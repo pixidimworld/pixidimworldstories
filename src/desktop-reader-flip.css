@@ -1,0 +1,139 @@
+@media (min-width: 761px) {
+  .reading-page-container:has(.desktop-reader-catalog) > .reading-layout {
+    top: 54px;
+    right: 18%;
+    bottom: 0;
+    left: 0;
+    z-index: 4;
+    display: block;
+  }
+
+  .desktop-reader-grid {
+    grid-template-columns: minmax(0, 82%) minmax(150px, 18%);
+  }
+
+  .desktop-featured-book,
+  .desktop-story-information,
+  .desktop-reading-loupe {
+    display: none;
+  }
+
+  .desktop-book-rail {
+    grid-column: 2;
+  }
+
+  .reading-book-stage {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, rgba(228, 218, 199, 0.92), rgba(248, 242, 231, 0.96) 48%, rgba(236, 225, 207, 0.9));
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.72);
+  }
+
+  .reading-book-stage .reading-page-header,
+  .reading-layout > .reading-content-panel {
+    display: none;
+  }
+
+  .reading-book-stage .reading-iframe-layer {
+    top: 4px;
+    right: clamp(20px, 3vw, 54px);
+    bottom: 78px;
+    left: clamp(20px, 3vw, 54px);
+  }
+
+  .reading-book-stage .reading-page-nav {
+    z-index: 8;
+    top: calc(50% - 38px);
+    color: #27231e;
+    font-family: "Newsreader", Georgia, serif;
+    font-size: 11px;
+    font-weight: 700;
+  }
+
+  .reading-book-stage .reading-page-nav.previous {
+    left: 14px;
+  }
+
+  .reading-book-stage .reading-page-nav.next {
+    right: 14px;
+  }
+
+  .desktop-flip-meta {
+    position: absolute;
+    right: 72px;
+    bottom: 13px;
+    left: 72px;
+    z-index: 7;
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: 16px;
+    min-height: 48px;
+    border-top: 1px solid rgba(133, 111, 82, 0.32);
+    color: #171512;
+    text-align: center;
+  }
+
+  .desktop-flip-meta h1 {
+    margin: 10px 0 0;
+    font: 600 clamp(25px, 2.2vw, 38px)/1 "Instrument Serif", "Newsreader", Georgia, serif;
+    letter-spacing: -0.015em;
+  }
+
+  .desktop-flip-meta p {
+    margin: 0;
+    color: #6d665e;
+    font: 600 11px/1.2 "Newsreader", Georgia, serif;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+
+  .desktop-book-rail {
+    display: flex;
+    flex-direction: column;
+    background: linear-gradient(180deg, #f8f2e7 0%, #f4ebe0 58%, #ece1cf 100%);
+  }
+
+  .desktop-book-rail-title {
+    flex: 0 0 auto;
+    margin: 0;
+    padding: 22px 14px 17px;
+    border-bottom: 1px solid rgba(133, 111, 82, 0.28);
+    color: #241a12;
+    font: 600 12px/1 "Newsreader", Georgia, serif;
+    letter-spacing: 0.18em;
+    text-align: center;
+    text-transform: uppercase;
+  }
+
+  .desktop-book-rail-scroll {
+    min-height: 0;
+    flex: 1 1 auto;
+    padding-top: 24px;
+  }
+
+  .desktop-book-rail::after {
+    top: 78px;
+    background: #6e553b;
+  }
+
+  .desktop-book-rail-item {
+    color: #241a12;
+  }
+}
+
+@media (min-width: 761px) and (max-width: 1179px) {
+  .reading-page-container:has(.desktop-reader-catalog) > .reading-layout {
+    right: 18%;
+  }
+
+  .reading-book-stage .reading-iframe-layer {
+    right: 22px;
+    left: 22px;
+  }
+
+  .desktop-flip-meta {
+    right: 38px;
+    left: 38px;
+  }
+}

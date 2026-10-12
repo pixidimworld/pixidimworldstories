@@ -897,6 +897,23 @@ const BACK_PLATE_SRC = {
   'the-great-climber':'/the-great-climber-back.webp',
   'elden-ring':'__MIDDLEMAN_BACK__'
 };
+if(MOBILE){
+  Object.assign(PLATE_SRC,{
+    'the-great-climber':'/mobile-covers/the-great-climber.webp',
+    'dark-souls':'/mobile-covers/a-journey-to-dimworld.webp',
+    'elden-ring':'/mobile-covers/the-middle-man.webp',
+    'ds2':'/mobile-covers/dreamers.webp',
+    'erdtree':'/mobile-covers/four-friends.webp',
+    'ac6':'/mobile-covers/robin-checker.webp',
+    'sekiro':'/mobile-covers/stuck-with-men.webp',
+    'ds3':'/mobile-covers/black-mask.webp',
+    'bloodborne':'/mobile-covers/the-month-june.webp'
+  });
+  Object.assign(BACK_PLATE_SRC,{
+    'the-great-climber':'/mobile-covers/the-great-climber-back.webp',
+    'elden-ring':'/mobile-covers/the-middle-man-back.webp'
+  });
+}
 function decodePlate(src,label,store){
   return new Promise(resolve=>{
     if(!src){resolve({ok:false,label,error:'missing source'});return;}
