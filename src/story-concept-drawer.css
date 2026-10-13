@@ -1,0 +1,189 @@
+.story-drawer-system {
+  --story-drawer-width: clamp(360px, 26vw, 470px);
+  position: absolute;
+  inset: 0 auto 0 0;
+  z-index: 35;
+  width: var(--story-drawer-width);
+  pointer-events: none;
+  visibility: hidden;
+}
+
+.story-drawer-system.is-active {
+  visibility: visible;
+}
+
+.story-concept-drawer {
+  position: absolute;
+  inset: 0;
+  width: var(--story-drawer-width);
+  overflow: hidden;
+  border-right: 1px solid #ddd8ce;
+  background: #fff;
+  box-shadow: 14px 0 34px rgba(31, 24, 17, 0.14);
+  pointer-events: auto;
+  transform: translate3d(-100%, 0, 0);
+  transition: transform 560ms cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform;
+}
+
+.story-drawer-system.is-open .story-concept-drawer {
+  transform: translate3d(0, 0, 0);
+}
+
+.story-drawer-scroll {
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding: 44px 44px 46px;
+  color: #171513;
+  font-family: "Newsreader", Georgia, serif;
+  scrollbar-width: thin;
+  scrollbar-color: #cfc7ba transparent;
+}
+
+.story-drawer-kicker {
+  margin: 0 0 17px;
+  color: #756c61;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+}
+
+.story-drawer-scroll > h2 {
+  max-width: 340px;
+  margin: 0;
+  font: 600 clamp(35px, 3vw, 48px)/0.98 "Instrument Serif", "Newsreader", Georgia, serif;
+  letter-spacing: -0.025em;
+  text-wrap: balance;
+}
+
+.story-drawer-intro {
+  margin: 25px 0 31px;
+  color: #37322d;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.58;
+}
+
+.story-drawer-sections section {
+  padding: 21px 0 22px;
+  border-top: 1px solid #e2ded7;
+}
+
+.story-drawer-sections h3 {
+  margin: 0 0 9px;
+  color: #171513;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+}
+
+.story-drawer-sections p {
+  margin: 0;
+  color: #4b4540;
+  font-size: 15px;
+  line-height: 1.58;
+}
+
+.story-drawer-how-to {
+  margin-top: 5px;
+  padding: 22px 20px 23px !important;
+  border: 1px solid #ded7cb !important;
+  background: #f8f2e7;
+}
+
+.story-drawer-handle {
+  position: absolute;
+  top: 45%;
+  left: 0;
+  display: grid;
+  width: 54px;
+  height: 54px;
+  place-items: center;
+  padding: 0;
+  border: 1px solid #e1e1e1;
+  border-radius: 15px;
+  color: #777;
+  background: #fff;
+  box-shadow: 0 5px 10px rgba(35, 35, 35, 0.16), 0 16px 30px rgba(35, 35, 35, 0.12), inset 0 1px 0 #fff;
+  cursor: pointer;
+  pointer-events: auto;
+  transform: translate(-7px, -50%);
+  transition: left 560ms cubic-bezier(0.22, 1, 0.36, 1), transform 560ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 220ms ease;
+  will-change: left, transform;
+}
+
+.story-drawer-system.is-open .story-drawer-handle {
+  left: var(--story-drawer-width);
+  transform: translate(-50%, -50%);
+}
+
+.story-drawer-handle svg {
+  width: 25px;
+  height: 25px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.story-drawer-handle:hover {
+  color: #222;
+  box-shadow: 0 7px 14px rgba(35, 35, 35, 0.18), 0 18px 34px rgba(35, 35, 35, 0.14), inset 0 1px 0 #fff;
+}
+
+.story-drawer-handle.should-pulse {
+  animation: story-drawer-attention 1.1s ease-in-out 3;
+}
+
+@keyframes story-drawer-attention {
+  0%, 100% {
+    box-shadow: 0 5px 10px rgba(35, 35, 35, 0.16), 0 16px 30px rgba(35, 35, 35, 0.12), 0 0 0 0 rgba(255, 255, 255, 0.65);
+  }
+  50% {
+    box-shadow: 0 7px 14px rgba(35, 35, 35, 0.18), 0 18px 34px rgba(35, 35, 35, 0.14), 0 0 0 13px rgba(255, 255, 255, 0);
+  }
+}
+
+@media (max-width: 760px) {
+  .story-drawer-system {
+    --story-drawer-width: 92vw;
+  }
+
+  .story-drawer-scroll {
+    padding: calc(28px + env(safe-area-inset-top)) 26px calc(32px + env(safe-area-inset-bottom));
+  }
+
+  .story-drawer-scroll > h2 {
+    font-size: clamp(38px, 12vw, 52px);
+  }
+
+  .story-drawer-intro {
+    font-size: 15px;
+  }
+
+  .story-drawer-sections p {
+    font-size: 14px;
+  }
+
+  .story-drawer-handle {
+    top: 47%;
+    width: 50px;
+    height: 50px;
+    border-radius: 14px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .story-concept-drawer,
+  .story-drawer-handle {
+    transition-duration: 1ms;
+  }
+
+  .story-drawer-handle.should-pulse {
+    animation: none;
+  }
+}

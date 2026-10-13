@@ -4,6 +4,7 @@ import { LandingPageFrame } from "./shaders/landing-pages/LandingPageFrame";
 import { getBookSpreads, getReaderSectionCopy, type BookInfo } from "./readerSpreads";
 import DesktopReaderCatalog from "./DesktopReaderCatalog";
 import MobileReaderCatalog from "./MobileReaderCatalog";
+import StoryConceptDrawer from "./StoryConceptDrawer";
 import "./shaders/threeui.css";
 import backgroundMusicUrl from "../music-bg.mp3?url";
 
@@ -296,6 +297,10 @@ export function Scene() {
 
   const handleReturnToLibrary = () => {
     if (transitionLockedRef.current) return;
+    document.querySelector<HTMLIFrameElement>(".shader-frame iframe")?.contentWindow?.postMessage(
+      { type: "ashen-press:reader-return" },
+      "*",
+    );
     resumeMainAudioForLibrary();
     transitionLockedRef.current = true;
     readerOpenRequestedRef.current = false;
@@ -357,7 +362,7 @@ export function Scene() {
     const handleMessage = (event: MessageEvent) => {
       if (event.data?.type === "ashen-press:prepare-reader" && event.data.book) {
         prepareBook(event.data.book as BookInfo, false);
-        scheduleReaderPreparation();
+        cancelReaderPreparation();
       } else if (event.data?.type === "ashen-press:open-reader" && event.data.book) {
         cancelReaderPreparation();
         prepareBook(event.data.book as BookInfo, true);
@@ -674,6 +679,10 @@ export function Scene() {
           onSceneReady={handleSceneReady}
         />
       </div>
+
+      <StoryConceptDrawer
+        active={sceneReady && view === "library" && !isTransitioning}
+      />
 
       {!sceneReady ? (
         <div className="scene-loading-screen" role="status" aria-live="polite" aria-label="Loading main scene">
