@@ -16,6 +16,7 @@ const stalkWithMenFrontUrl = new URL('../../../books/STUCK WITH MEN(FRONT).jpg',
 const blackMaxFrontUrl = new URL('../../../books/BLACK MASK(FRONT).jpg', import.meta.url).href;
 const theMonthJuneFrontUrl = '/mobile-covers/the%20month%20june.png';
 const aJourneyToDimworldFrontUrl = new URL('../../../books/a journey to dimworld(front).jpg', import.meta.url).href;
+const plantUrl = new URL('../../../plant.webp', import.meta.url).href;
 const ashenPressDocument = ashenPressBaseDocument
   .replace('__MIDDLEMAN_FRONT__', middlemanFrontUrl)
   .replace('__MIDDLEMAN_BACK__', middlemanBackUrl)
@@ -26,7 +27,8 @@ const ashenPressDocument = ashenPressBaseDocument
   .replace('__STALK_WITH_MEN_FRONT__', stalkWithMenFrontUrl)
   .replace('__BLACK_MAX_FRONT__', blackMaxFrontUrl)
   .replace('__THE_MONTH_JUNE_FRONT__', theMonthJuneFrontUrl)
-  .replace('__A_JOURNEY_TO_DIMWORLD_FRONT__', aJourneyToDimworldFrontUrl);
+  .replace('__A_JOURNEY_TO_DIMWORLD_FRONT__', aJourneyToDimworldFrontUrl)
+  .replace('__PLANT_IMAGE__', plantUrl);
 
 export type AshenPressProps = {
   active?: boolean;

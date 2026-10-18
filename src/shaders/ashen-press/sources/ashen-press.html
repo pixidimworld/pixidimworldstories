@@ -716,8 +716,8 @@ const MOBILE_CAMERA_CONFIG={
   targetY:1,
   targetZ:0,
   fov:17.5,
-  startPanX:0,
-  minPanX:-2,
+  startPanX:-1.9,
+  minPanX:-1.9,
   maxPanX:2.4,
   parallaxStrength:1,
   dragSensitivity:1
@@ -1543,6 +1543,18 @@ function loadEnvironment(onProgress){
             ?object.material.map(replaceMaterial)
             :replaceMaterial(object.material);
         });
+        new THREE.TextureLoader().load('__PLANT_IMAGE__',texture=>{
+          texture.colorSpace=THREE.SRGBColorSpace;
+          const plantHeight=2.50;
+          const plant=new THREE.Mesh(
+            new THREE.PlaneGeometry(plantHeight*(337/600),plantHeight),
+            new THREE.MeshBasicMaterial({map:texture,transparent:true,alphaTest:0.02,depthWrite:false})
+          );
+          plant.name='MobileWallPlant';
+          plant.position.set(-3.86,4.40,K.wallZ+0.018);
+          plant.renderOrder=1;
+          scene.add(plant);
+        });
         const topShelf=environmentRoot.getObjectByName('Cube002')||environmentRoot.getObjectByName('Cube_002')||environmentRoot.getObjectByName('Cube.002');
         const bottomShelf=environmentRoot.getObjectByName('Cube003')||environmentRoot.getObjectByName('Cube_003')||environmentRoot.getObjectByName('Cube.003');
         const flowerPot=environmentRoot.getObjectByName('1_livro_002');
@@ -2216,7 +2228,7 @@ function applyCamera(){
     const damp=(S.active?0.16:0.28)*MOBILE_CAMERA_CONFIG.parallaxStrength;
     const az=clamp(ORB.x*K.orbitAz*damp,-0.035,0.035);
     const el=clamp(ORB.y*K.orbitEl*damp,-0.025,0.025);
-    const panOffset=MOBILE_PAN.x-MOBILE_CAMERA_CONFIG.startPanX;
+    const panOffset=MOBILE_PAN.x;
     CAM_TARGET.set(MOBILE_CAMERA_CONFIG.targetX+panOffset,MOBILE_CAMERA_CONFIG.targetY,MOBILE_CAMERA_CONFIG.targetZ);
     CAM_OFFSET.set(MOBILE_CAMERA_CONFIG.positionX+panOffset,MOBILE_CAMERA_CONFIG.positionY,MOBILE_CAMERA_CONFIG.positionZ).sub(CAM_TARGET);
     CAM_OFFSET.applyAxisAngle(CAM_UP,az);
