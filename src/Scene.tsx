@@ -515,6 +515,11 @@ export function Scene() {
                 transform-origin: 50% 0 !important;
               }
             }
+            @media (min-width: 1000px) {
+              .sb-3d {
+                transform: translate(11px, -30px) scale(1.152, 1.034) !important;
+              }
+            }
             @media (max-width: 760px) {
               .sb-wrap { margin-top: 0 !important; }
               .sb-3d { max-width: min(91vw, 560px) !important; }
@@ -523,7 +528,7 @@ export function Scene() {
           doc.head.appendChild(themeStyle);
         }
 
-        const generatedSpreads = await getBookSpreads(currentBook);
+        const generatedSpreads = await getBookSpreads(currentBook, window.innerWidth >= 1180);
         if (requestId !== spreadRequestIdRef.current || !frame.isConnected) {
           for (const spread of generatedSpreads) {
             if (spread.url.startsWith("blob:")) URL.revokeObjectURL(spread.url);

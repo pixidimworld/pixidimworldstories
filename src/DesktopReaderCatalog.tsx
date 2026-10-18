@@ -39,18 +39,18 @@ const CATALOG_BOOKS: CatalogBook[] = [
     vol: "II",
     blurb:
       "A story about friendship, discovery, and the courage it takes to keep moving when every path seems uncertain.",
-    cover: cover("../books/FOUR FRIENDS(FRONT).jpg"),
+    cover: "/mobile-covers/four%20friends2.png",
     creator: "Donald",
     brand: "PIXIDIMWORLD",
   },
   {
     id: "ac6",
     title: "Robin Checker",
-    sub: "ASSASSIN / ACTION",
+    sub: "ACTION / CRIME / THRILLER",
     year: "2025",
     vol: "III",
     blurb:
-      "A skilled assassin is pulled into a chain of dangerous missions where motives blur and survival depends on reading the next move.",
+      "A wealthy entrepreneur returns from the dead to reclaim an empire stolen by his own brother.",
     cover: cover("../books/ROBIN CHECKER(FRONT).jpg"),
     creator: "Donald",
     brand: "PIXIDIMWORLD",
@@ -70,11 +70,11 @@ const CATALOG_BOOKS: CatalogBook[] = [
   {
     id: "sekiro",
     title: "Stuck With Men",
-    sub: "THRILLER",
+    sub: "ACTION / TRAGEDY / THRILLER",
     year: "2025",
     vol: "V",
     blurb:
-      "Pursuit, suspicion, and an escalating threat trap unlikely allies together, forcing them to decide who can still be trusted.",
+      "A devoted family man escapes a horrifying military facility, only to discover that his greatest nightmare awaits him at home.",
     cover: cover("../books/STUCK WITH MEN(FRONT).jpg"),
     creator: "Donald",
     brand: "PIXIDIMWORLD",
@@ -82,11 +82,11 @@ const CATALOG_BOOKS: CatalogBook[] = [
   {
     id: "ds3",
     title: "Black Mask",
-    sub: "ACTION / CRIME",
+    sub: "ACTION / SCI-FI / CRIME / THRILLER",
     year: "2025",
     vol: "VI",
     blurb:
-      "A dark crime story of hidden identities, divided loyalties, and the figure known as Black Mask who controls the city from the shadows.",
+      "A young hero with a mysterious ability fights crime while searching for the truth behind his father's murder.",
     cover: cover("../books/BLACK MASK(FRONT).jpg"),
     creator: "Donald",
     brand: "PIXIDIMWORLD",
@@ -94,12 +94,12 @@ const CATALOG_BOOKS: CatalogBook[] = [
   {
     id: "bloodborne",
     title: "The Month June",
-    sub: "HITMAN / ACTION / CRIME",
+    sub: "ACTION / CRIME / THRILLER / REVENGE",
     year: "2025",
     vol: "VII",
     blurb:
-      "A hitman enters the month of June with a final list of jobs, old enemies, and consequences that refuse to stay buried.",
-    cover: cover("../books/THE MONTH JUNE(FRONT).jpg"),
+      "After losing everything to a dangerous criminal organization, a desperate man becomes a ruthless assassin seeking vengeance.",
+    cover: "/mobile-covers/the%20month%20june.png",
     creator: "Donald",
     brand: "PIXIDIMWORLD",
   },

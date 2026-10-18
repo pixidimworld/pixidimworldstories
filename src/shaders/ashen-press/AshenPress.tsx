@@ -10,11 +10,11 @@ const middlemanBackUrl = new URL('../../../books/the middle man(back).webp', imp
 const middlemanFrontUrl = new URL('../../../books/the middle man(front).webp', import.meta.url).href;
 const dreamersBackUrl = new URL('../../../books/dreamers(back).webp', import.meta.url).href;
 const dreamersFrontUrl = new URL('../../../books/dreamers(front).webp', import.meta.url).href;
-const forFriendsFrontUrl = new URL('../../../books/FOUR FRIENDS(FRONT).jpg', import.meta.url).href;
+const forFriendsFrontUrl = '/mobile-covers/four%20friends2.png';
 const robinChekaFrontUrl = new URL('../../../books/ROBIN CHECKER(FRONT).jpg', import.meta.url).href;
 const stalkWithMenFrontUrl = new URL('../../../books/STUCK WITH MEN(FRONT).jpg', import.meta.url).href;
 const blackMaxFrontUrl = new URL('../../../books/BLACK MASK(FRONT).jpg', import.meta.url).href;
-const theMonthJuneFrontUrl = new URL('../../../books/THE MONTH JUNE(FRONT).jpg', import.meta.url).href;
+const theMonthJuneFrontUrl = '/mobile-covers/the%20month%20june.png';
 const aJourneyToDimworldFrontUrl = new URL('../../../books/a journey to dimworld(front).jpg', import.meta.url).href;
 const ashenPressDocument = ashenPressBaseDocument
   .replace('__MIDDLEMAN_FRONT__', middlemanFrontUrl)

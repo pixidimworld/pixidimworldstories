@@ -102,6 +102,35 @@ const COMPLETED_READER_SECTIONS: Record<string, ReaderSectionCopy[]> = {
   ],
 };
 
+type OriginalStoryPage = { heading: string; text: string };
+
+const ORIGINAL_STORY_PAGES: Record<string, OriginalStoryPage[]> = {
+  ac6: [
+    { heading: "A Life of Success", text: "Robin Checker, a wealthy technology entrepreneur, has everything—success, love, and a powerful business empire." },
+    { heading: "The Return", text: "But his life takes a dark turn when a mysterious attack leaves him presumed dead. After surviving a brutal ordeal in Egypt, Robin returns home to discover that his jealous brother has taken control of his company." },
+    { heading: "Betrayal", text: "Determined to reclaim what is rightfully his, Robin becomes trapped in a dangerous world of betrayal, revenge, and hidden enemies." },
+    { heading: "The Greatest Threat", text: "As secrets begin to unfold, he realizes that the greatest threat isn't always a stranger—it could be someone he trusts the most." },
+  ],
+  ds3: [
+    { heading: "The Invention", text: "At just seven years old, Dave Benson loses his father, a brilliant scientist murdered for refusing to surrender a powerful invention to a ruthless villain named Max." },
+    { heading: "Extraordinary Abilities", text: "Unknown to Max, Dave's father had already injected the experimental substance into his son's hands, giving him extraordinary abilities and making him Max's next target." },
+    { heading: "Black Mask", text: "Years later, Dave becomes Black Mask, a mysterious masked hero who fights crime while secretly searching for those responsible for his father's death. As Max grows desperate to capture him and steal his powers, Dave finds himself caught between dangerous enemies, a secret agency determined to recruit him, and a shocking betrayal from someone he deeply trusts." },
+    { heading: "Power and Redemption", text: "What begins as a mission for justice becomes a battle of power, loyalty, betrayal, and redemption—where even the people closest to him may be his greatest enemies." },
+  ],
+  sekiro: [
+    { heading: "The Assignment", text: "James, a hardworking businessman and devoted family man, believes he has found a promising opportunity when he accepts a military job." },
+    { heading: "The Facility", text: "But what begins as a three-week assignment quickly turns into a nightmare when he discovers he has been trapped inside a heavily guarded facility where innocent men are subjected to horrifying experiments designed to transform them into monstrous weapons." },
+    { heading: "The Escape", text: "Determined to survive and return to his wife and daughter, James risks everything to escape, becoming a wanted fugitive hunted by ruthless soldiers. But when he finally makes it home, he discovers his house destroyed and his family brutally murdered." },
+    { heading: "A Deadly Promise", text: "After uncovering the shocking truth behind their deaths, James makes a deadly promise: to hunt down every man responsible, no matter the cost." },
+  ],
+  bloodborne: [
+    { heading: "A Life Marked by Tragedy", text: "Born into a wealthy family, Kingsley Wilson's life is marked by tragedy from the very beginning. His mother dies during childbirth, his father loses his sight in a devastating accident, and the family's fortune slowly disappears." },
+    { heading: "The Cult", text: "Years later, struggling with poverty and desperate to build a better life for his wife, Kingsley joins a mysterious cult promising wealth and power. But when the organization brutally murders his wife, his world falls apart." },
+    { heading: "Mr. Killer", text: "Consumed by grief and revenge, Kingsley transforms into Mr. Killer, a feared assassin determined to eliminate everyone responsible for his suffering. As his deadly mission unfolds, an unexpected friendship with a young boy named Bob and a new love interest draw him into an even more dangerous conflict with powerful criminals." },
+    { heading: "The Month of June", text: "What begins as a desperate search for wealth becomes a ruthless journey of revenge, betrayal, and redemption—where the month of June marks the beginning of everything that changed his life forever." },
+  ],
+};
+
 const TEMPORARY_SECTION_HEADINGS = [
   "Opening Pages",
   "Developing Story",
@@ -126,6 +155,15 @@ export function getReaderSectionCopy(book: BookInfo | null, spreadIndex: number)
     return {
       heading: "Opening Pages",
       summary: "Every story begins with a first page and an invitation to enter another world.",
+    };
+  }
+  const originalStory = ORIGINAL_STORY_PAGES[book.id];
+  if (originalStory) {
+    const storySpreadIndex = Math.min(index, 1);
+    const storyPages = originalStory.slice(storySpreadIndex * 2, storySpreadIndex * 2 + 2);
+    return {
+      heading: storySpreadIndex === 0 ? "Story Summary" : "Story Continued",
+      summary: storyPages.map((page) => page.text).join(" "),
     };
   }
   const completed = COMPLETED_READER_SECTIONS[book.id];
@@ -320,12 +358,54 @@ async function resolveSpreads(spreads: PendingBookSpread[]): Promise<BookSpread[
   })));
 }
 
+function getOriginalStorySpreads(book: BookInfo, rebalanceForDesktop: boolean): Promise<BookSpread[]> {
+  const pages = ORIGINAL_STORY_PAGES[book.id];
+  if (!rebalanceForDesktop) {
+    return resolveSpreads([0, 1].map((spreadIndex) => {
+      const leftIndex = spreadIndex * 2;
+      const rightIndex = leftIndex + 1;
+      return {
+        url: createEditorialSpread(
+          {
+            chapter: `Page ${leftIndex + 1}`,
+            heading: pages[leftIndex].heading,
+            pageNum: leftIndex + 1,
+            paragraphs: [pages[leftIndex].text],
+          },
+          {
+            chapter: `Page ${rightIndex + 1}`,
+            heading: pages[rightIndex].heading,
+            pageNum: rightIndex + 1,
+            paragraphs: [pages[rightIndex].text],
+          },
+        ),
+        title: `${book.title} — Pages ${leftIndex + 1} & ${rightIndex + 1}`,
+        place: "Story Summary",
+      };
+    }));
+  }
+  return resolveSpreads([{
+    url: createEditorialSpread(
+      {
+        chapter: "Story Parts 1 & 2",
+        heading: pages[0].heading,
+        pageNum: 1,
+        paragraphs: [pages[0].text, pages[1].text],
+      },
+      {
+        chapter: "Story Parts 3 & 4",
+        heading: pages[2].heading,
+        pageNum: 2,
+        paragraphs: [pages[2].text, pages[3].text],
+      },
+    ),
+    title: `${book.title} — Complete Story`,
+    place: "Story Summary",
+  }]);
+}
+
 const TEMPORARY_STORY_BOOK_IDS = new Set([
   "erdtree",
-  "ac6",
-  "sekiro",
-  "ds3",
-  "bloodborne",
   "dark-souls",
 ]);
 
@@ -363,7 +443,10 @@ function getTemporaryStorySpreads(book: BookInfo): Promise<BookSpread[]> {
   })));
 }
 
-export async function getBookSpreads(book: BookInfo): Promise<BookSpread[]> {
+export async function getBookSpreads(book: BookInfo, rebalanceForDesktop = false): Promise<BookSpread[]> {
+  if (ORIGINAL_STORY_PAGES[book.id]) {
+    return getOriginalStorySpreads(book, rebalanceForDesktop);
+  }
   if (TEMPORARY_STORY_BOOK_IDS.has(book.id)) {
     return getTemporaryStorySpreads(book);
   }
