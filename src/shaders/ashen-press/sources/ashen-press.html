@@ -1543,18 +1543,6 @@ function loadEnvironment(onProgress){
             ?object.material.map(replaceMaterial)
             :replaceMaterial(object.material);
         });
-        new THREE.TextureLoader().load('__PLANT_IMAGE__',texture=>{
-          texture.colorSpace=THREE.SRGBColorSpace;
-          const plantHeight=2.50;
-          const plant=new THREE.Mesh(
-            new THREE.PlaneGeometry(plantHeight*(337/600),plantHeight),
-            new THREE.MeshBasicMaterial({map:texture,transparent:true,alphaTest:0.02,depthWrite:false})
-          );
-          plant.name='MobileWallPlant';
-          plant.position.set(-3.86,4.40,K.wallZ+0.018);
-          plant.renderOrder=1;
-          scene.add(plant);
-        });
         const topShelf=environmentRoot.getObjectByName('Cube002')||environmentRoot.getObjectByName('Cube_002')||environmentRoot.getObjectByName('Cube.002');
         const bottomShelf=environmentRoot.getObjectByName('Cube003')||environmentRoot.getObjectByName('Cube_003')||environmentRoot.getObjectByName('Cube.003');
         const flowerPot=environmentRoot.getObjectByName('1_livro_002');
