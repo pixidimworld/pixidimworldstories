@@ -1409,6 +1409,7 @@ const dracoLoader=new DRACOLoader();
 dracoLoader.setDecoderPath('https://unpkg.com/three@0.181.0/examples/jsm/libs/draco/gltf/');
 const gltfLoader=new GLTFLoader();
 gltfLoader.setDRACOLoader(dracoLoader);
+__SKATEBOARD_RETURN__
 function proceduralCheckerFloorMaterial(sourceMaterial){
   const material=sourceMaterial.clone();
   material.name='Procedural checker floor';
@@ -1747,6 +1748,7 @@ const COVER_VS = `
     vWV=cameraPosition-wp.xyz;
     gl_Position=projectionMatrix*viewMatrix*wp; }`;
 const COVER_FS = `
+  uniform bool uInsidePaper;
   uniform sampler2D uTex; uniform float uSatin; uniform float uOpacity; uniform float uSeed;
   uniform float uBow, uChamf, uER, uW, uH;
   varying vec2 vUv; varying vec3 vT, vB2, vNf; varying vec3 vWV;
@@ -1756,6 +1758,8 @@ const COVER_FS = `
   float vnoise(vec2 p){ vec2 i=floor(p),f=fract(p); f=f*f*(3.0-2.0*f);
     return mix(mix(hash(i),hash(i+vec2(1,0)),f.x),mix(hash(i+vec2(0,1)),hash(i+vec2(1,1)),f.x),f.y); }
   void main(){
+    // The opened cover has an opaque white inner face on its actual curved surface.
+    if(uInsidePaper&&!gl_FrontFacing){gl_FragColor=vec4(1.0);return;}
     vec2 uv=clamp(vUv,0.0008,0.9992);
     vec4 tex=texture2D(uTex,uv);
 
@@ -1964,7 +1968,7 @@ function buildBook(data,index){
   gScl.add(body);
 
   const mk=(tex,satin,seed)=>new THREE.ShaderMaterial({transparent:true,
-    uniforms:{uTex:{value:tex},uSatin:{value:satin},uOpacity:{value:0},uSeed:{value:seed},
+    uniforms:{uTex:{value:tex},uSatin:{value:satin},uOpacity:{value:0},uSeed:{value:seed},uInsidePaper:{value:false},
               uBow:{value:K.bow},uChamf:{value:K.chamf},uER:{value:K.chamfR},
               uW:{value:SZW},uH:{value:SZH}},
     vertexShader:COVER_VS,fragmentShader:COVER_FS});
@@ -2163,6 +2167,7 @@ function setActive(B){
   showDetail(B);
 }
 function clearActive(){
+  if(!MOBILE&&(DREAD.book||DREAD.pending)){closeDesktopRead();return;}
   if(!S.active||S.phase==='closing'||S.phase==='returningToShelf')return;
   const B=S.active;S.active=null;
   S.readerPending=false; setPhase('closing');
@@ -2172,6 +2177,7 @@ function clearActive(){
   toInactive(B);
 }
 function flipActive(){
+  if(!MOBILE&&(DREAD.book||DREAD.pending))return;
   const B=S.active; if(!B||S.anim!=='active')return;
   B.flipped=!B.flipped; B.loadBack();
   B.tActiveR.start([K.activeRot[0],K.activeRot[1]+(B.flipped?Math.PI:0),K.activeRot[2]],
@@ -2212,6 +2218,7 @@ function initializeDesktopCamera(){
   setTickerOffset();
 }
 function applyCamera(){
+  if(!MOBILE&&DREAD.book)return;
   if(MOBILE){
     const damp=(S.active?0.16:0.28)*MOBILE_CAMERA_CONFIG.parallaxStrength;
     const az=clamp(ORB.x*K.orbitAz*damp,-0.035,0.035);
@@ -2459,6 +2466,7 @@ function resize(){
   }
   frameCamera();
   backgroundDirty=true;
+  if(!MOBILE&&DREAD.book)fitDesktopRead();
 }
 let resizeFrame=0;
 function scheduleResize(){
@@ -2648,6 +2656,7 @@ function showDetail(B){
   if(MOBILE){ mMeta.textContent=`${d.studio||STUDIO} - ${d.year}`; mTitle.textContent=d.title;
               mDetails.textContent='Close'; }
 }
+__DESKTOP_READING__
 dClose.addEventListener('click',e=>{e.stopPropagation();clearActive();});
 function openActiveReader(){
   if(!S.active||!S.active.data)return;
@@ -2656,6 +2665,7 @@ function openActiveReader(){
     return;
   }
   if(S.phase!=='selected'&&S.phase!=='returningFromReader')return;
+  if(!MOBILE){requestDesktopRead();return;}
   dragReset();
   S.active.sWob.start([0,0,0]);
   setPhase('openingReader');
@@ -2752,6 +2762,7 @@ addEventListener('pointerleave',()=>{ ORB.tx=0;ORB.ty=0;
   if(!MOBILE&&!S.active&&S.anim==='inactive')setLifted(null); });
 addEventListener('blur',()=>{ ORB.tx=0;ORB.ty=0; });
 addEventListener('pointerdown',e=>{
+  if(!MOBILE&&(DREAD.book||DREAD.pending))return;
   if((e.target.closest('header')&&!e.target.closest('.brand-header'))||e.target.closest('footer')||
      e.target.closest('.detail')||e.target.closest('.mbar')||e.target.closest('.menu')||
      e.target.closest('.camera-panel'))return;
@@ -2815,6 +2826,9 @@ addEventListener('pointerup',e=>{
 });
 addEventListener('pointercancel',()=>{ DRAG.on=false;MOBILE_GESTURE.on=false;MOBILE_GESTURE.pointerId=null;MOBILE_GESTURE.book=null; });
 addEventListener('keydown',e=>{
+  if(!MOBILE&&DREAD.book&&(e.key==='ArrowRight'||e.key==='ArrowLeft'||e.code==='Space')){
+    e.preventDefault();turnDesktopPage(e.key==='ArrowLeft'?-1:e.key==='ArrowRight'?1:document.activeElement===DREAD.element?.children[0]?-1:1);return;
+  }
   if(e.key==='Escape'&&S.active)clearActive();
   if((e.key===' '||e.code==='Space')&&S.active){e.preventDefault();flipActive();}
 });
@@ -3045,7 +3059,7 @@ function tick(now){
     if(Math.abs(tg-WASH.t)>0.0009||WASH.dirty){ WASH.t+=(tg-WASH.t)*k2; WASH.dirty=false; drawWash(); }
   }
   const dampRate=(S.anim==='intro')?1:(1-Math.exp(-(MOBILE?15:5.5)*motionDt));
-  ORB.x+=(ORB.tx-ORB.x)*dampRate; ORB.y+=(ORB.ty-ORB.y)*dampRate;
+  if(MOBILE||!DREAD.book){ORB.x+=(ORB.tx-ORB.x)*dampRate; ORB.y+=(ORB.ty-ORB.y)*dampRate;}
   applyCamera();
   const cameraMoved=camera.position.distanceToSquared(lastBackgroundCameraPosition)>1e-10||
     1-Math.abs(camera.quaternion.dot(lastBackgroundCameraQuaternion))>1e-10;
@@ -3076,20 +3090,23 @@ function tick(now){
           dogMixer.stopAllAction();
           dogMixer=null;
         }
+        scheduleSkateReturn();
       }
     }
   }
+  const skateboardMoving=updateSkateReturn(motionDt);
   const wf=wallFade.v[0];
   wallMat.uniforms.uOpacity.value=wf; oakH.uniforms.uOpacity.value=wf; oakV.uniforms.uOpacity.value=wf;
 
 
   let backgroundBookMotion=false,foregroundBookMotion=false;
+  if(!MOBILE)updateDesktopRead();
   for(const B of books){
     const moving=B.tEntrance.d>0||B.tHover.d>0||B.tTilt.d>0||B.tActiveP.d>0||
       B.tActiveR.d>0||B.tScale.d>0||B.tRefl.d>0||B.tFade.d>0||
       B.tSeat.d>0||springMoving(B.sWob);
     backgroundBookMotion=backgroundBookMotion||(moving&&B.gRoot.layers.isEnabled(LAY_BG));
-    foregroundBookMotion=foregroundBookMotion||(moving&&B.gRoot.layers.isEnabled(LAY_FG));
+    foregroundBookMotion=foregroundBookMotion||((moving||(!MOBILE&&DREAD.book===B&&DREAD.stage!=='reading'))&&B.gRoot.layers.isEnabled(LAY_FG));
     B.tEntrance.update();B.tHover.update();B.tTilt.update();B.tActiveP.update();B.tActiveR.update();
     B.tScale.update();B.tRefl.update();B.tFade.update();B.tSeat.update();B.sWob.update(dt);
     B.gEntrance.position.set(B.entranceHome.position.x,B.tEntrance.v[0],B.entranceHome.position.z);
@@ -3105,6 +3122,7 @@ function tick(now){
     B.pages.uniforms.uOpacity.value=op;
     B.coverMat.uniforms.uOpacity.value=op;
     B.backMat.uniforms.uOpacity.value=op;
+    if(!MOBILE&&DREAD.book===B)applyDesktopReadPose(B);
     {
       const lift=B.tHover.v[1], away=clamp((B.tHover.v[2]-B.base[2])/0.075,0,1);
       B.wallSh.position.x=B.basePos[0]-0.09-away*0.05;
@@ -3129,7 +3147,7 @@ function tick(now){
   const act=(S.anim==='animatingForward'||S.anim==='active'||S.anim==='animatingBackward');
   const bookTransitioning=!MOBILE&&
     (S.anim==='animatingForward'||S.anim==='animatingBackward');
-  const dogBackgroundFrame=dogMoving&&(!bookTransitioning||(screenFrameCount&1)===0);
+  const dogBackgroundFrame=(dogMoving||skateboardMoving)&&(!bookTransitioning||(screenFrameCount&1)===0);
   const refreshBackground=backgroundDirty||cameraMoved||dogBackgroundFrame||backgroundBookMotion||
     wallFade.d>0||S.anim==='intro';
   if(refreshBackground){
@@ -3151,7 +3169,7 @@ function tick(now){
   const panSettling=MOBILE&&!S.active&&(Math.abs(MOBILE_PAN.velocity)>0.002||
     Math.abs(MOBILE_PAN.target-MOBILE_PAN.x)>0.0001);
   const needsNextFrame=S.anim==='intro'||S.anim==='animatingForward'||S.anim==='animatingBackward'||
-    entranceBounce.active||dogMoving||wallFade.d>0||backgroundBookMotion||foregroundBookMotion||
+    entranceBounce.active||dogMoving||skateboardMoving||wallFade.d>0||backgroundBookMotion||foregroundBookMotion||
     postAnimating||cameraSettling||panSettling||Math.abs(WASH.target-WASH.t)>0.0009||WASH.dirty;
   if(!refreshBackground&&!postAnimating&&!drawActiveFrame){if(needsNextFrame)wakeRender(true);return;}
   renderer.clear(true,true,false);
@@ -3323,8 +3341,10 @@ async function revealPreparedLibrary(){
   // Independent critical assets prepare together behind the entrance overlay.
   const fontsPromise=prepareFonts();
   const environmentPromise=loadEnvironment();
+  const skateboardPromise=gltfLoader.loadAsync('/skateboard-optimized.glb').catch(error=>{console.warn('Skateboard return unavailable.',error);return null;});
   const platesPromise=loadPlates();
   READINESS.environment=await environmentPromise;
+  prepareSkateReturn(await skateboardPromise);
   READINESS.floorTextHeaders=createFloorTextHeaders();
   READINESS.fonts=await fontsPromise;
   READINESS.plates=await platesPromise;

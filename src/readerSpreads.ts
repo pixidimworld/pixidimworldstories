@@ -182,14 +182,14 @@ export function getReaderSectionCopy(book: BookInfo | null, spreadIndex: number)
   };
 }
 
-interface PageContent {
+export interface PageContent {
   chapter: string;
   heading: string;
   paragraphs: string[];
   pageNum: number;
 }
 
-function createEditorialSpread(
+function renderEditorialSpread(
   left: PageContent,
   right: PageContent
 ): Promise<string> {
@@ -358,7 +358,7 @@ async function resolveSpreads(spreads: PendingBookSpread[]): Promise<BookSpread[
   })));
 }
 
-function getOriginalStorySpreads(book: BookInfo, rebalanceForDesktop: boolean): Promise<BookSpread[]> {
+function getOriginalStorySpreads(book: BookInfo, rebalanceForDesktop: boolean, createEditorialSpread = renderEditorialSpread): Promise<BookSpread[]> {
   const pages = ORIGINAL_STORY_PAGES[book.id];
   if (!rebalanceForDesktop) {
     return resolveSpreads([0, 1].map((spreadIndex) => {
@@ -409,7 +409,7 @@ const TEMPORARY_STORY_BOOK_IDS = new Set([
   "dark-souls",
 ]);
 
-function getTemporaryStorySpreads(book: BookInfo): Promise<BookSpread[]> {
+function getTemporaryStorySpreads(book: BookInfo, createEditorialSpread = renderEditorialSpread): Promise<BookSpread[]> {
   const description = book.blurb || "Temporary story description pending.";
   const chapters = [
     ["Temporary Opening", "This temporary reading-page copy introduces the project as described here: " + description, "Final characters, setting, and opening events will be supplied later."],
@@ -443,12 +443,19 @@ function getTemporaryStorySpreads(book: BookInfo): Promise<BookSpread[]> {
   })));
 }
 
-export async function getBookSpreads(book: BookInfo, rebalanceForDesktop = false): Promise<BookSpread[]> {
+export async function getBookSpreads(book: BookInfo, rebalanceForDesktop = false, collectPages?: (pages: PageContent[]) => void): Promise<BookSpread[]> {
+  const createEditorialSpread = (left: PageContent, right: PageContent) => {
+    if (collectPages) {
+      collectPages([left, right]);
+      return Promise.resolve("");
+    }
+    return renderEditorialSpread(left, right);
+  };
   if (ORIGINAL_STORY_PAGES[book.id]) {
-    return getOriginalStorySpreads(book, rebalanceForDesktop);
+    return getOriginalStorySpreads(book, rebalanceForDesktop, createEditorialSpread);
   }
   if (TEMPORARY_STORY_BOOK_IDS.has(book.id)) {
-    return getTemporaryStorySpreads(book);
+    return getTemporaryStorySpreads(book, createEditorialSpread);
   }
   if (book.id === "the-great-climber") {
     // Exactly 12 story pages across 6 dual-page spreads (no front/back cover images)

@@ -57,6 +57,22 @@ export default function StoryConceptDrawer({ active }: StoryConceptDrawerProps) 
         <div className="story-drawer-scroll">
           <p className="story-drawer-kicker">THE STORY BEHIND THE SHELVES</p>
           <h2>Why I Built PIXIDIMWORLD STORIES</h2>
+          <div className="story-drawer-sections">
+            <section>
+              <h3>HOW TO CONTACT ME</h3>
+              <p>
+                Instagram: {" "}
+                <a
+                  href="https://www.instagram.com/pixidimworld/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ color: "inherit", textUnderlineOffset: "3px" }}
+                >
+                  @pixidimworld
+                </a>
+              </p>
+            </section>
+          </div>
           <p className="story-drawer-intro">
             PIXIDIMWORLD STORIES is a 3D interactive story-concept experience built to present my original story ideas in a more immersive way than a traditional static portfolio.
           </p>

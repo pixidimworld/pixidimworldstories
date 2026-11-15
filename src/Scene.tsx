@@ -1,12 +1,12 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { AshenPress } from "./shaders/ashen-press/AshenPress";
 import { LandingPageFrame } from "./shaders/landing-pages/LandingPageFrame";
-import { getBookSpreads, getReaderSectionCopy, type BookInfo } from "./readerSpreads";
+import { getBookSpreads, getReaderSectionCopy, type BookInfo, type PageContent } from "./readerSpreads";
 import DesktopReaderCatalog from "./DesktopReaderCatalog";
 import MobileReaderCatalog from "./MobileReaderCatalog";
 import StoryConceptDrawer from "./StoryConceptDrawer";
 import "./shaders/threeui.css";
-import backgroundMusicUrl from "../music-bg.mp3?url";
+import backgroundMusicUrl from "../music bg.mp3?url";
 
 type MobileReaderPage = ReturnType<typeof getReaderSectionCopy>;
 
@@ -162,6 +162,7 @@ export function Scene() {
       if (backgroundMusicRef.current) return backgroundMusicRef.current;
       const backgroundMusic = new Audio(backgroundMusicUrl);
       backgroundMusic.loop = true;
+      backgroundMusic.volume = 0.2;
       backgroundMusic.preload = deferMobileMusic ? "none" : "auto";
       if (!deferMobileMusic) backgroundMusic.load();
       backgroundMusicRef.current = backgroundMusic;
@@ -360,6 +361,26 @@ export function Scene() {
     };
 
     const handleMessage = (event: MessageEvent) => {
+      if (event.data?.type === "ashen-press:desktop-read") {
+        const frame = document.querySelector<HTMLIFrameElement>(".shader-frame iframe");
+        if (event.source !== frame?.contentWindow || !event.data.book) return;
+        cancelReaderPreparation();
+        const pages: PageContent[] = [];
+        const book = event.data.book as BookInfo;
+        void getBookSpreads(book, false, (spreadPages) => pages.push(...spreadPages)).then(() => {
+          frame.contentWindow?.postMessage({ type: "ashen-press:desktop-pages", id: book.id, pages }, "*");
+        }).catch(() => {
+          frame.contentWindow?.postMessage({ type: "ashen-press:desktop-pages", id: book.id, pages: [] }, "*");
+        });
+        return;
+      }
+      if (event.data?.type === "ashen-press:desktop-reading") {
+        const frame = document.querySelector<HTMLIFrameElement>(".shader-frame iframe");
+        if (event.source !== frame?.contentWindow) return;
+        if (event.data.active) pauseMainAudioForReader();
+        else resumeMainAudioForLibrary();
+        return;
+      }
       if (event.data?.type === "ashen-press:prepare-reader" && event.data.book) {
         prepareBook(event.data.book as BookInfo, false);
         cancelReaderPreparation();
