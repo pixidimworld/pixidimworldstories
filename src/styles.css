@@ -65,6 +65,26 @@ body {
   animation: scene-loading-spin 0.9s linear infinite;
 }
 
+.scene-loading-indicator {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: clamp(52px, 7vw, 78px);
+  aspect-ratio: 1;
+}
+
+.scene-loading-indicator .scene-loading-spinner {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+}
+
+.scene-loading-percent {
+  position: relative;
+  font: 600 clamp(12px, 1.4vw, 16px)/1 Inter, sans-serif;
+  font-variant-numeric: tabular-nums;
+}
+
 @keyframes scene-loading-spin {
   to { transform: rotate(360deg); }
 }

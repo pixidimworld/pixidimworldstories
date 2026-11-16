@@ -503,9 +503,9 @@ export async function getBookSpreads(book: BookInfo, rebalanceForDesktop = false
             heading: "The Low Strata",
             pageNum: 4,
             paragraphs: [
-              "By midday, they entered the lower cloud stratumâ€”a frozen graveyard of abandoned orbital tethers and forgotten communication arrays. The air grew perilously thin. Maya adjusted her respirator valve, signaling the squad to clip into the rest-platforms bolted by prior long-dead expeditions.",
+              "By midday, they entered the lower cloud stratum—a frozen graveyard of abandoned orbital tethers and forgotten communication arrays. The air grew perilously thin. Maya adjusted her respirator valve, signaling the squad to clip into the rest-platforms bolted by prior long-dead expeditions.",
               "It was here that they found the first signs of the creatures' nesting grounds. Chitinous husks clung to the iron girders like frozen gargoyles, shedding iridescent scales that dissolved into toxic vapor in the wind.",
-              "â€œThey are not born down below,â€ whispered Chen, the squad's ballast engineer, inspecting the structural geometry of the ladder. â€œThis isn't a weapon. It's an umbilical cord. The machine world above is feeding on what remains of our atmosphere.â€"
+              "“They are not born down below,” whispered Chen, the squad's ballast engineer, inspecting the structural geometry of the ladder. “This isn't a weapon. It's an umbilical cord. The machine world above is feeding on what remains of our atmosphere.”"
             ]
           }
         ),
@@ -520,7 +520,7 @@ export async function getBookSpreads(book: BookInfo, rebalanceForDesktop = false
             pageNum: 5,
             paragraphs: [
               "Climbing through the electrical storms of the mesosphere tested their limits. Lightning arced across the obsidian metal of the ladder, grounding out through internal insulated conduits without harming the climbers, as if the structure itself was designed to shepherd travelers safely through the violent skies.",
-              "When they finally breached the upper cloud deck, the horizon expanded into blinding sunlight. Above them was not an empty sky, but an inverted continentâ€”vast floating monoliths of white stone and glass, held aloft by anti-gravitational rings.",
+              "When they finally breached the upper cloud deck, the horizon expanded into blinding sunlight. Above them was not an empty sky, but an inverted continent—vast floating monoliths of white stone and glass, held aloft by anti-gravitational rings.",
               "Suspended beneath the central citadel was the origin point of the ladder: an immense aperture glowing with cerulean light, pulsing with rhythmic tides like a mechanical heart."
             ]
           },
@@ -529,7 +529,7 @@ export async function getBookSpreads(book: BookInfo, rebalanceForDesktop = false
             heading: "The Leviathan Rookery",
             pageNum: 6,
             paragraphs: [
-              "Between the floating monoliths drifted the sky leviathansâ€”colossal, serpentine creatures encased in biomechanical armor, their translucent fins catching the high solar rays. They were not malicious predators; they were maintenance entities, harvested and driven mad by automated directives.",
+              "Between the floating monoliths drifted the sky leviathans—colossal, serpentine creatures encased in biomechanical armor, their translucent fins catching the high solar rays. They were not malicious predators; they were maintenance entities, harvested and driven mad by automated directives.",
               "Maya and her team scrambled onto the docking ring of the central spire. Around them lay the remains of ancient docking ports, overgrown with luminescent moss and pristine silver circuitry that responded to human touch.",
               "In the center of the ring sat an archival console, its interface projecting three-dimensional starmaps and historical chronologies. The truth was laid bare: the ladder was built centuries ago as an evacuation conduit during the Great Unraveling."
             ]
@@ -571,9 +571,9 @@ export async function getBookSpreads(book: BookInfo, rebalanceForDesktop = false
             heading: "The Core of Tomorrow",
             pageNum: 9,
             paragraphs: [
-              "The central chamber opened into an infinite spherical expanse. At its focal point hovered the Coreâ€”a spinning hyper-dimensional tessellation of light and energy that powered the climate engines of the floating world.",
+              "The central chamber opened into an infinite spherical expanse. At its focal point hovered the Core—a spinning hyper-dimensional tessellation of light and energy that powered the climate engines of the floating world.",
               "Maya approached the interface plinth. The atmospheric scrubbers above were functional, capable of generating clean water, synthetic soil, and safe habitats for tens of thousands of souls.",
-              "â€œIf we disengage the quarantine,â€ Chen said, examining the energy conduits, â€œthe ladder reverses. The elevator cabins will unlock. We won't just stop the beastsâ€”we can bring everyone up.â€"
+              "“If we disengage the quarantine,” Chen said, examining the energy conduits, “the ladder reverses. The elevator cabins will unlock. We won't just stop the beasts—we can bring everyone up.”"
             ]
           },
           {
@@ -581,7 +581,7 @@ export async function getBookSpreads(book: BookInfo, rebalanceForDesktop = false
             heading: "The Sovereign Override",
             pageNum: 10,
             paragraphs: [
-              "Placing her hand upon the crystalline sensor plate, Maya spoke the ancient emergency phrase recorded in the expedition log: â€œA higher world, a safer tomorrow.â€",
+              "Placing her hand upon the crystalline sensor plate, Maya spoke the ancient emergency phrase recorded in the expedition log: “A higher world, a safer tomorrow.”",
               "The Core flared with golden luminescence. A harmonic chime resonated throughout the citadel and echoed down the length of the ten-kilometer ladder to the earth below.",
               "Across the ruins, the descending beasts ceased their aggression, folding their wings and returning upward in peaceful, synchronized ascension, dissolving back into the atmosphere like silver rain."
             ]
@@ -608,7 +608,7 @@ export async function getBookSpreads(book: BookInfo, rebalanceForDesktop = false
             pageNum: 12,
             paragraphs: [
               "This concludes the expedition chronicle of The Great Climber, Volume I of the PIXIDIMWORLD Stories archival library.",
-              "â€œWe did not climb to escape our world. We climbed to discover how much of it was still worth saving.â€",
+              "“We did not climb to escape our world. We climbed to discover how much of it was still worth saving.”",
               "Archival edition published by PIXIDIMWORLD, 2025. Set in Newsreader and Instrument Serif. Preserved for the library shelves and future readers."
             ]
           }

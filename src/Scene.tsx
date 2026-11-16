@@ -75,6 +75,8 @@ export function Scene() {
   const [readerShown, setReaderShown] = useState(false);
   const [readerLoading, setReaderLoading] = useState(false);
   const [sceneReady, setSceneReady] = useState(false);
+  const loadingPercentRef = useRef<HTMLSpanElement | null>(null);
+  const loadingScreenRef = useRef<HTMLDivElement | null>(null);
   const [musicMuted, setMusicMuted] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [isPageTurning, setIsPageTurning] = useState(false);
@@ -361,6 +363,14 @@ export function Scene() {
     };
 
     const handleMessage = (event: MessageEvent) => {
+      if (event.data?.type === "ashen-press:loading-progress") {
+        const frame = document.querySelector<HTMLIFrameElement>(".shader-frame iframe");
+        if (event.source !== frame?.contentWindow || !Number.isFinite(event.data.progress)) return;
+        const percent = Math.max(0, Math.min(100, Math.floor(event.data.progress)));
+        if (loadingPercentRef.current) loadingPercentRef.current.textContent = `${percent}%`;
+        loadingScreenRef.current?.setAttribute("aria-valuenow", String(percent));
+        return;
+      }
       if (event.data?.type === "ashen-press:desktop-read") {
         const frame = document.querySelector<HTMLIFrameElement>(".shader-frame iframe");
         if (event.source !== frame?.contentWindow || !event.data.book) return;
@@ -711,8 +721,11 @@ export function Scene() {
       />
 
       {!sceneReady ? (
-        <div className="scene-loading-screen" role="status" aria-live="polite" aria-label="Loading main scene">
-          <span className="scene-loading-spinner" aria-hidden="true" />
+        <div ref={loadingScreenRef} className="scene-loading-screen" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={0} aria-label="Loading main scene">
+          <span className="scene-loading-indicator" aria-hidden="true">
+            <span className="scene-loading-spinner" />
+            <span ref={loadingPercentRef} className="scene-loading-percent">0%</span>
+          </span>
         </div>
       ) : null}
 

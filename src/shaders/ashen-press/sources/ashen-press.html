@@ -577,6 +577,9 @@
   .scene-loader{position:fixed;inset:0;z-index:100;width:100vw;height:100vh;height:100dvh;
     display:grid;place-items:center;background:#fff;color:#000;pointer-events:none;user-select:none}
   .scene-loader-spinner{width:clamp(52px,7vw,78px);aspect-ratio:1;border:clamp(2px,.32vw,3px) solid rgba(0,0,0,.16);border-top-color:#000;border-radius:50%;animation:scene-loader-spin .9s linear infinite}
+  .scene-loader-indicator{position:relative;display:grid;place-items:center;width:clamp(52px,7vw,78px);aspect-ratio:1}
+  .scene-loader-indicator .scene-loader-spinner{position:absolute;inset:0;width:100%}
+  .scene-loader-percent{position:relative;font:600 clamp(12px,1.4vw,16px)/1 Inter,sans-serif;font-variant-numeric:tabular-nums}
   @keyframes scene-loader-spin{to{transform:rotate(360deg)}}
   @media(prefers-reduced-motion:reduce){.scene-loader-spinner{animation:none}}
 </style>
@@ -654,8 +657,11 @@
     <button class="solid" id="mbar-look">Look inside</button>
   </div>
 </div>
-<div class="scene-loader" id="scene-loader" role="status" aria-live="polite" aria-label="Loading main scene">
-  <span class="scene-loader-spinner" aria-hidden="true"></span>
+<div class="scene-loader" id="scene-loader" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-label="Loading main scene">
+  <span class="scene-loader-indicator" aria-hidden="true">
+    <span class="scene-loader-spinner"></span>
+    <span class="scene-loader-percent" id="scene-loader-percent">0%</span>
+  </span>
 </div>
 
 <script type="importmap">
@@ -934,13 +940,16 @@ function decodePlate(src,label,store){
     im.src=src;
   });
 }
-async function loadPlates(){
+async function loadPlates(onProgress){
+  let loaded=0;
+  const total=DISPLAY_BOOKS.length+Object.keys(BACK_PLATE_SRC).length;
+  const report=result=>{onProgress?.(++loaded/total);return result;};
   const required=DISPLAY_BOOKS.map(b=>decodePlate(
     PLATE_SRC[b.id],'front:'+b.id,im=>{PLATE[b.id]=im;}
-  ));
+  ).then(report));
   const optional=Object.entries(BACK_PLATE_SRC).map(([id,src])=>decodePlate(
     src,'back:'+id,im=>{BACK_PLATE[id]=im;}
-  ));
+  ).then(report));
   const results=await Promise.all([...required,...optional]);
   return {
     ok:results.slice(0,required.length).every(result=>result.ok),
@@ -2827,7 +2836,7 @@ addEventListener('pointerup',e=>{
 addEventListener('pointercancel',()=>{ DRAG.on=false;MOBILE_GESTURE.on=false;MOBILE_GESTURE.pointerId=null;MOBILE_GESTURE.book=null; });
 addEventListener('keydown',e=>{
   if(!MOBILE&&DREAD.book&&(e.key==='ArrowRight'||e.key==='ArrowLeft'||e.code==='Space')){
-    e.preventDefault();turnDesktopPage(e.key==='ArrowLeft'?-1:e.key==='ArrowRight'?1:document.activeElement===DREAD.element?.children[0]?-1:1);return;
+    e.preventDefault();turnDesktopPage(e.key==='ArrowLeft'?-1:e.key==='ArrowRight'?1:document.activeElement?.classList.contains('--left')?-1:1);return;
   }
   if(e.key==='Escape'&&S.active)clearActive();
   if((e.key===' '||e.code==='Space')&&S.active){e.preventDefault();flipActive();}
@@ -3229,6 +3238,18 @@ addEventListener('message',e=>{
 
 const sceneLoader=document.getElementById('scene-loader'),
       ticker=document.querySelector('footer.ticker');
+const SCENE_PROGRESS={environment:0,skateboard:0,fonts:0,plates:0,books:0,backs:0,textures:0,shaders:0,frame:0,ready:0};
+const SCENE_PROGRESS_WEIGHTS={environment:60,skateboard:2,fonts:3,plates:10,books:8,backs:5,textures:4,shaders:5,frame:3};
+const scenePercent=document.getElementById('scene-loader-percent');
+function setSceneProgress(stage,value){
+  SCENE_PROGRESS[stage]=clamp(value,0,1);
+  const weighted=Object.entries(SCENE_PROGRESS_WEIGHTS).reduce((sum,[key,weight])=>sum+SCENE_PROGRESS[key]*weight,0);
+  const percent=Math.min(SCENE_PROGRESS.ready?100:99,Math.floor(weighted));
+  if(scenePercent&&scenePercent.textContent!==percent+'%'){
+    scenePercent.textContent=percent+'%';sceneLoader?.setAttribute('aria-valuenow',String(percent));
+    parent.postMessage({type:'ashen-press:loading-progress',progress:percent},'*');
+  }
+}
 document.addEventListener('pointerdown',event=>{
   const target=event.target instanceof Element?event.target:null;
   const control=target?.closest('button,a[href],[role="button"],input,select,textarea,[data-audio-interactive]');
@@ -3334,16 +3355,23 @@ async function revealPreparedLibrary(){
     waitUntil(()=>parseFloat(getComputedStyle(canvas).opacity)>=0.999),
     waitUntil(()=>entranceBounce.settled&&wallFade.d<=0&&wallFade.v[0]>=0.999)
   ]);
+  setSceneProgress('ready',1);
+  // Let the host's 100% indicator paint before its loading overlay is removed.
+  await frame();
+  await frame();
   sceneLoader?.remove();
   requestAnimationFrame(()=>helpToggle?.classList.add('attention'));
 }
 (async function boot(){
   // Independent critical assets prepare together behind the entrance overlay.
-  const fontsPromise=prepareFonts();
-  const environmentPromise=loadEnvironment();
-  const skateboardPromise=gltfLoader.loadAsync('/skateboard-optimized.glb').catch(error=>{console.warn('Skateboard return unavailable.',error);return null;});
-  const platesPromise=loadPlates();
+  const fontsPromise=prepareFonts().then(result=>{setSceneProgress('fonts',1);return result;});
+  const environmentPromise=loadEnvironment(progress=>setSceneProgress('environment',progress*0.85));
+  const skateboardPromise=gltfLoader.loadAsync('/skateboard-optimized.glb',event=>{
+    if(event.total>0)setSceneProgress('skateboard',event.loaded/event.total);
+  }).catch(error=>{console.warn('Skateboard return unavailable.',error);return null;}).then(result=>{setSceneProgress('skateboard',1);return result;});
+  const platesPromise=loadPlates(progress=>setSceneProgress('plates',progress));
   READINESS.environment=await environmentPromise;
+  setSceneProgress('environment',1);
   prepareSkateReturn(await skateboardPromise);
   READINESS.floorTextHeaders=createFloorTextHeaders();
   READINESS.fonts=await fontsPromise;
@@ -3352,14 +3380,15 @@ async function revealPreparedLibrary(){
   for(let i=0;i<DISPLAY_BOOKS.length;i++){
     books.push(buildBook(DISPLAY_BOOKS[i],i));
     READINESS.books=books.length;
+    setSceneProgress('books',books.length/DISPLAY_BOOKS.length);
     if(!document.hidden) await frame();
   }
   applyMode();
   resize(); washResize();
   setupDesktopCameraPanel();
   setupMobileCameraPanel();
-  READINESS.bookBacks=await prepareBookBacks();
-  const rendererReady=await prepareRenderer();
+  READINESS.bookBacks=await prepareBookBacks(progress=>setSceneProgress('backs',progress));
+  const rendererReady=await prepareRenderer(stage=>setSceneProgress(stage,1));
   if(!READINESS.environment)READINESS.errors.push('Main library GLB unavailable');
   if(!READINESS.plates.ok)READINESS.errors.push(...READINESS.plates.errors.map(item=>item.label+': '+item.error));
   if(READINESS.books!==DISPLAY_BOOKS.length)READINESS.errors.push('Expected '+DISPLAY_BOOKS.length+' books, built '+READINESS.books);

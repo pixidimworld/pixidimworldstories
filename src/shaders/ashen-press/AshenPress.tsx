@@ -3,8 +3,10 @@ import { useEffect, useRef, useState, type CSSProperties } from "react";
 import ashenPressSource from "./sources/ashen-press.html?raw";
 import desktopReadingSource from "./sources/desktop-reading.js?raw";
 import skateboardReturnSource from "./sources/skateboard-return.js?raw";
+import pageFlipSource from "./pageFlipSource";
 
-const ashenPressBaseDocument = ashenPressSource.replace('__DESKTOP_READING__', () => desktopReadingSource).replace('__SKATEBOARD_RETURN__', () => skateboardReturnSource).replace(
+const desktopReaderDocument = desktopReadingSource.replace('__PAGE_FLIP_SOURCE__', () => JSON.stringify(pageFlipSource));
+const ashenPressBaseDocument = ashenPressSource.replace('__DESKTOP_READING__', () => desktopReaderDocument).replace('__SKATEBOARD_RETURN__', () => skateboardReturnSource).replace(
   "__ASHEN_DEV__",
   import.meta.env.DEV ? "true" : "false",
 );
